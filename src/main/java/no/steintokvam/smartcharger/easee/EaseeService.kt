@@ -3,6 +3,7 @@ package no.steintokvam.smartcharger.easee
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import no.steintokvam.smartcharger.easee.objects.Charger
+import no.steintokvam.smartcharger.easee.objects.ChargerState
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -17,13 +18,13 @@ class EaseeService {
 
         val response = client.newCall(request).execute()
 
-        return mapper.readValue(response.body?.charStream()?.readText(),  mapper.typeFactory.constructCollectionType(List::class.java, Charger::class.java))
+        return mapper.readValue(response.body?.charStream()?.readText(), mapper.typeFactory.constructCollectionType(List::class.java, Charger::class.java))
     }
 
-    fun getChargerState(chargerID: String) {
+    fun getChargerState(chargerID: String): ChargerState {
         val request = createRequest("/chargers/$chargerID/state")
         val response = client.newCall(request).execute()
-        //mapper.readValue(response.body?.charStream()?.readText(),)
+        return mapper.readValue(response.body?.charStream()?.readText(), ChargerState::class.java)
     }
 
     private fun createRequest(endpoint: String): Request {
