@@ -17,7 +17,7 @@ class EaseeServiceTest {
     @Test
     fun testGetChargerState(){
         val chargerID = "EHE6ZQU7"
-        val chargerState = easeeService.getChargerState(chargerID)
+        val chargerState = easeeService.getChargerState()
         assertTrue(chargerState.isOnline)
     }
 }

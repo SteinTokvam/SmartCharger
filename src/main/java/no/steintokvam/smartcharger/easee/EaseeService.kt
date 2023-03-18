@@ -15,13 +15,14 @@ class EaseeService {
 
     fun getChargerId(): List<Charger> {
         val request = createRequest("/chargers")
-
         val response = client.newCall(request).execute()
 
-        return mapper.readValue(response.body?.charStream()?.readText(), mapper.typeFactory.constructCollectionType(List::class.java, Charger::class.java))
+        val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, Charger::class.java)
+        return mapper.readValue(response.body?.charStream()?.readText(), collectionType)
     }
 
-    fun getChargerState(chargerID: String): ChargerState {
+    fun getChargerState(): ChargerState {
+        val chargerID = getChargerId()[0].id
         val request = createRequest("/chargers/$chargerID/state")
         val response = client.newCall(request).execute()
         return mapper.readValue(response.body?.charStream()?.readText(), ChargerState::class.java)
