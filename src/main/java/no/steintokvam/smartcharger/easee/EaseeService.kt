@@ -1,6 +1,7 @@
 package no.steintokvam.smartcharger.easee
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import no.steintokvam.smartcharger.easee.objects.Charger
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -9,10 +10,10 @@ class EaseeService {
 
     private val BASE_URL = "https://api.easee.cloud/api"
     private val client = OkHttpClient()
-    private val mapper = ObjectMapper()
+    private val mapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
 
     fun getChargerId(): List<Charger> {
-        val request = createRequest("/charger")
+        val request = createRequest("/chargers")
 
         val response = client.newCall(request).execute()
 
