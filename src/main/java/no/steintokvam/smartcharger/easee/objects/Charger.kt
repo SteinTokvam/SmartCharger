@@ -1,7 +1,5 @@
 package no.steintokvam.smartcharger.easee.objects
 
-import java.time.LocalDateTime
-
 data class Charger(
         val id: String,
         val name: String,
