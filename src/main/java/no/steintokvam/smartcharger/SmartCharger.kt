@@ -17,4 +17,13 @@ class SmartCharger {
         val allPrices = priceService.getPrices(zone, date)
         return allPrices.sortedBy { it.NOK_per_kWh }.subList(0, hours)
     }
+
+    fun setChargingPeriod(date: LocalDate, zone: String): Boolean {
+        val lowestPrices = getLowestPrices(date, zone, 5)
+        return easeeService.setChargingPeriod(lowestPrices)
+    }
+
+    fun deleteChargingPeriod() {
+
+    }
 }

@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 class SmartChargerTest {
 
     private val smartCharger = SmartCharger()
+    private val date = LocalDate.of(2023, 3, 21)
 
     @Test
     fun testIsCharging() {
@@ -19,7 +20,6 @@ class SmartChargerTest {
 
     @Test
     fun getFiveLowestPrices() {
-        val date = LocalDate.of(2023, 3, 21)
         val lowestPrices = smartCharger.getLowestPrices(date, "NO1", 5)
         assertThat(lowestPrices[0].NOK_per_kWh).isEqualTo(1f)
         assertThat(lowestPrices[0].time_start).isEqualTo(LocalDateTime.of(2023, 3, 21, 23, 0))
@@ -27,5 +27,11 @@ class SmartChargerTest {
         assertThat(lowestPrices[2].NOK_per_kWh).isEqualTo(1.05f)
         assertThat(lowestPrices[3].NOK_per_kWh).isEqualTo(1.06f)
         assertThat(lowestPrices[4].NOK_per_kWh).isEqualTo(1.07f)
+    }
+
+    @Test
+    fun setChargingPeriod() {
+        val hasSetChargingPeriod = smartCharger.setChargingPeriod(date, "NO1")
+        assertTrue(hasSetChargingPeriod)
     }
 }
