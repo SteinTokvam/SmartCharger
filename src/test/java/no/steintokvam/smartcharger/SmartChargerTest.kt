@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 class SmartChargerTest {
 
     private val smartCharger = SmartCharger()
-    private val date = LocalDate.of(2023, 3, 21)
+    private val date = LocalDateTime.of(2023, 3, 21, 0, 0)
 
     @Test
     fun testIsCharging() {
@@ -20,18 +20,29 @@ class SmartChargerTest {
 
     @Test
     fun getFiveLowestPrices() {
-        val lowestPrices = smartCharger.getLowestPrices(date, "NO1", 5)
-        assertThat(lowestPrices[0].NOK_per_kWh).isEqualTo(1f)
-        assertThat(lowestPrices[0].time_start).isEqualTo(LocalDateTime.of(2023, 3, 21, 23, 0))
-        assertThat(lowestPrices[1].NOK_per_kWh).isEqualTo(1.03f)
-        assertThat(lowestPrices[2].NOK_per_kWh).isEqualTo(1.05f)
-        assertThat(lowestPrices[3].NOK_per_kWh).isEqualTo(1.06f)
-        assertThat(lowestPrices[4].NOK_per_kWh).isEqualTo(1.07f)
+        val lowestPrices = smartCharger.getLowestPrices(date, "NO1", 7, 5)
+        assertThat(lowestPrices[0].NOK_per_kWh).isEqualTo(0.79f)
+        assertThat(lowestPrices[0].time_start).isEqualTo(LocalDateTime.of(2023, 3, 22, 4, 0))
+        assertThat(lowestPrices[1].NOK_per_kWh).isEqualTo(0.81f)
+        assertThat(lowestPrices[2].NOK_per_kWh).isEqualTo(0.83f)
+        assertThat(lowestPrices[3].NOK_per_kWh).isEqualTo(0.84f)
+        assertThat(lowestPrices[4].NOK_per_kWh).isEqualTo(0.86f)
     }
 
     @Test
     fun testToggleCharging() {
         val hasToggledCharging = smartCharger.toggleCharging()
-        assertTrue(hasToggledCharging)
+        assertThat(hasToggledCharging == 400)//Får 400 fordi ingen bil er plugget i og man kan dermed ikke toggle
+    }
+
+    @Test
+    fun testCalculateGetChargingTimes() {
+        val chargingTimes = smartCharger.getChargingTimes(20, 77, LocalDateTime.now().plusHours(10))
+
+        val lowestPrices = smartCharger.getLowestPrices(LocalDateTime.now(), "NO1", 10, 7).sortedBy { it.time_start }
+
+        assertThat(chargingTimes.prices[0].NOK_per_kWh == lowestPrices[0].NOK_per_kWh)
+        assertThat(chargingTimes.prices[6].NOK_per_kWh == lowestPrices[6].NOK_per_kWh)
+        assertThat(chargingTimes.kwhLeftToCharge == 62)
     }
 }

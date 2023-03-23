@@ -54,16 +54,15 @@ class EaseeService {
         return mapper.readValue(response.body?.charStream()?.readText(), ChargerState::class.java)
     }
 
-    fun toggleCharging(): Boolean {
+    fun toggleCharging(): Int {
         val chargerId = getChargerId()[0].id
-        val bodyString = mapper.writeValueAsString(scheduele)
-        val body: RequestBody? = null
+        val body: RequestBody = "".toRequestBody("Application/json".toMediaType())
         val request = createPostRequest("/$chargerId/commands/toggle_charging", body)
         val response = client.newCall(request).execute()
         if(response.isSuccessful) {
-            return true
+            return response.code
         }
-        return false
+        return response.code
     }
 
     private fun createGetRequest(endpoint: String): Request {
@@ -72,7 +71,7 @@ class EaseeService {
             .build()
     }
 
-    private fun createPostRequest(endpoint: String, body: RequestBody?): Request {
+    private fun createPostRequest(endpoint: String, body: RequestBody): Request {
         return createRequestBuilder(endpoint)
             .post(body)
             .build()
@@ -82,6 +81,6 @@ class EaseeService {
         return Request.Builder()
             .url(BASE_URL+endpoint)
             .addHeader("accept", "application/json")
-            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImN0eSI6IkpXVCJ9.eyJBY2NvdW50SWQiOjU1MzE4LCJVc2VySWQiOjQyMDU4LCJ1bmlxdWVfbmFtZSI6IlN0ZWluIFBldHRlciBUb2t2YW0iLCJyb2xlIjoiVXNlciIsIm5iZiI6MTY3OTQyMTc4OCwiZXhwIjoxNjc5NTA4MTg4LCJpYXQiOjE2Nzk0MjE3ODh9.isuay318SqqM2cyJ1S34YG-x7dFx-HzP3b_7SGoW-jw")
+            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImN0eSI6IkpXVCJ9.eyJBY2NvdW50SWQiOjU1MzE4LCJVc2VySWQiOjQyMDU4LCJ1bmlxdWVfbmFtZSI6IlN0ZWluIFBldHRlciBUb2t2YW0iLCJyb2xlIjoiVXNlciIsIm5iZiI6MTY3OTU5NDU3MCwiZXhwIjoxNjc5NjgwOTcwLCJpYXQiOjE2Nzk1OTQ1NzB9.0abLNJbLv1ax8unEln1x8rW4EhuU1nbq3AG8au6gNwU")
     }
 }

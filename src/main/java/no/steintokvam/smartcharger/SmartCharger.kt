@@ -4,10 +4,10 @@ import no.steintokvam.smartcharger.easee.EaseeService
 import no.steintokvam.smartcharger.electricity.ElectricityPrice
 import no.steintokvam.smartcharger.electricity.PriceService
 import no.steintokvam.smartcharger.objects.ChargingTimes
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
+import kotlin.math.roundToInt
 
 class SmartCharger {
     private val easeeService = EaseeService()
@@ -17,28 +17,32 @@ class SmartCharger {
         return easeeService.getChargerState().totalPower > 0
     }
 
-    fun getLowestPrices(date: LocalDate, zone: String, hours: Int) : List<ElectricityPrice> {
-        val allPrices = priceService.getPrices(zone, date)
-        return allPrices.sortedBy { it.NOK_per_kWh }.subList(0, hours)
+    fun getLowestPrices(date: LocalDateTime, zone: String, hoursToChargeIn: Int, estimatedChargingTime: Int) : List<ElectricityPrice> {
+        val allPrices = priceService.getPrices(zone, date.toLocalDate())
+        val cutOffTime = LocalDateTime.now().plusHours(hoursToChargeIn.toLong())
+        return allPrices
+            .filter { it.time_start.isAfter(LocalDateTime.now()) }
+            .filter { it.time_start.isBefore(cutOffTime) }
+            .sortedBy { it.NOK_per_kWh }.subList(0, estimatedChargingTime)
     }
 
-    fun getChargingTimes(remainingPercent: Int, totalCapacityKwH: Int, finishChargingBy: LocalDateTime) {
+    fun getChargingTimes(remainingPercent: Int, totalCapacityKwH: Int, finishChargingBy: LocalDateTime): ChargingTimes {
         val currentBatteryLevel = calculateBatteryLevel(remainingPercent, totalCapacityKwH)
         val kwhLeftToCharge = totalCapacityKwH - currentBatteryLevel
         //dette er et desimaltall i antall timer
-        val estimatedChargeTime = kwhLeftToCharge / 8.9f//TODO: burdee byttes ut med en variabel satt til hva nå enn nåværende hastighet er
+        val estimatedChargeTime = (kwhLeftToCharge / 8.9f).roundToInt()//TODO: burde byttes ut med en variabel satt til hva nå enn nåværende hastighet er
 
-        val lowestPrices = getLowestPrices(LocalDate.now(), "NO1", getHoursBetween(LocalDateTime.now(), finishChargingBy))
+        val lowestPrices = getLowestPrices(LocalDateTime.now(), "NO1", getHoursBetween(LocalDateTime.now(), finishChargingBy), estimatedChargeTime).sortedBy { it.time_start }
 
         return ChargingTimes(lowestPrices, kwhLeftToCharge, estimatedChargeTime, finishChargingBy)
     }
 
-    private fun getHoursBetween(now: LocalDateTime, then: LocalDateTime) {
-        return ChronoUnit.HOURS.between(now, then)
+    private fun getHoursBetween(now: LocalDateTime, then: LocalDateTime): Int {
+        return ChronoUnit.HOURS.between(now, then).toInt()
     }
 
     private fun calculateBatteryLevel(remainingPercent: Int, totalCapacityKwH: Int): Int {
-        return (totalCapacityKwH / (remainingPercent / 100f)).roundToInt()
+        return (totalCapacityKwH * (remainingPercent / 100f)).roundToInt()
     }
 
     fun runSmartcharging(chargingTimes: ChargingTimes) {
@@ -50,7 +54,7 @@ class SmartCharger {
         if(chargingTimes.prices[0].time_start.hour == LocalTime.now().hour) {
             //StartCharging
             toggleCharging()
-        } else if(LocalDate.now().hour >= chargingTimes.finnishChargingBy) {
+        } else if(LocalTime.now().hour >= chargingTimes.finnishChargingBy.hour) {
             // denne skrur på lading dersom den ikke står på nå og må derfor sjekke for det
             toggleCharging()
         } else {
@@ -59,7 +63,7 @@ class SmartCharger {
         }
     }
 
-    fun toggleCharging(): Boolean {
+    fun toggleCharging(): Int {
         return easeeService.toggleCharging()
     }
 

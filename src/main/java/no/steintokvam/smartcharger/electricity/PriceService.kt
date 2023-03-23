@@ -11,6 +11,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.roundToInt
@@ -33,19 +34,28 @@ class PriceService {
     private val ALL_ZONES = listOf("NO1", "NO2", "NO3", "NO4", "NO5")
 
     fun getPrices(zone: String, date: LocalDate): List<ElectricityPrice> {
+        val prices: MutableList<ElectricityPrice> = getPriceForDay(zone, date)
+
+        if(LocalTime.now().isAfter(LocalTime.of(15,0))) {
+            prices.addAll(getPriceForDay(zone, date.plusDays(1)))
+        }
+
+        return prices
+    }
+
+    private fun getPriceForDay(zone: String, date: LocalDate): MutableList<ElectricityPrice> {
         if (!ALL_ZONES.contains(zone)) {
             LOGGER.warn(String.format("Zone %s is not valid", zone))
-            return emptyList()
+            return mutableListOf()
         }
         val request = createRequest(zone, date)
         val response = client.newCall(request).execute()
 
         val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, ElectricityPrice::class.java)
-        val prices = mapper.readValue<List<ElectricityPrice>>(response.body?.charStream()?.readText(), collectionType)
-            .onEach { it.NOK_per_kWh = it.NOK_per_kWh.format(2) }
-
-        return prices
+        return mapper.readValue<List<ElectricityPrice>>(response.body?.charStream()?.readText(), collectionType)
+            .onEach { it.NOK_per_kWh = it.NOK_per_kWh.format(2) }.toMutableList()
     }
+
     private fun Float.format(scale: Int) = "%.${scale}f".format(Locale.US, this).toFloat()
 
     private fun createRequest(zone: String, date: LocalDate): Request {
