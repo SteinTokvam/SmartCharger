@@ -5,6 +5,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import no.steintokvam.smartcharger.easee.objects.AccessToken
+import no.steintokvam.smartcharger.easee.objects.Authentication
 import no.steintokvam.smartcharger.easee.objects.Charger
 import no.steintokvam.smartcharger.easee.objects.ChargerState
 import no.steintokvam.smartcharger.electricity.ElectricityPrice
@@ -35,8 +37,12 @@ class EaseeService {
         .registerModule(KotlinModule.Builder().build())
         .registerModule(javaTimeModule)
 
-    fun authenticate(user: String, password: String) {
-
+    fun authenticate(user: String, password: String): AccessToken {
+        val auth = mapper.writeValueAsString(Authentication(user, password))
+        val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
+        val request = createPostRequest("/accounts/login", body)
+        val response = client.newCall(request).execute()
+        return mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
     }
 
     fun getChargerId(): List<Charger> {
