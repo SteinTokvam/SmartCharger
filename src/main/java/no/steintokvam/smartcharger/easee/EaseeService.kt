@@ -35,6 +35,10 @@ class EaseeService {
         .registerModule(KotlinModule.Builder().build())
         .registerModule(javaTimeModule)
 
+    fun authenticate(user: String, password: String) {
+
+    }
+
     fun getChargerId(): List<Charger> {
         val request = createGetRequest("/chargers")
         val response = client.newCall(request).execute()
@@ -50,31 +54,11 @@ class EaseeService {
         return mapper.readValue(response.body?.charStream()?.readText(), ChargerState::class.java)
     }
 
-    fun setChargingPeriod(prices: List<ElectricityPrice>): Boolean {
-        val todayDate = LocalDate.now()
-        val rangesToday = prices
-            .filter { it.time_start.dayOfMonth == todayDate.dayOfMonth }
-            .map {
-                val chargingCurrentLimit = 25
-                Range(chargingCurrentLimit, it.time_start.toLocalTime(), it.time_end.toLocalTime())
-            }
-        val rangesTomorrow = prices
-            .filter { it.time_start.dayOfMonth == todayDate.dayOfMonth.plus(1) }
-            .map {
-                val chargingCurrentLimit = 25
-                Range(chargingCurrentLimit, it.time_start.toLocalTime(), it.time_end.toLocalTime())
-            }
-
-        val days = listOf(
-            Days(rangesToday, todayDate.dayOfWeek.minus(1).value),
-            Days(rangesTomorrow, todayDate.dayOfWeek.value)
-        )
-
-        val scheduele = WeeklyScheduele(days, true)
-        val chargerId = "EHE6ZQU7"//getChargerId()[0].id
+    fun toggleCharging(): Boolean {
+        val chargerId = getChargerId()[0].id
         val bodyString = mapper.writeValueAsString(scheduele)
-        val body: RequestBody = bodyString.toRequestBody("application/json".toMediaType())
-        val request = createPostRequest("/$chargerId/weekly_charge_plan", body)
+        val body: RequestBody? = null
+        val request = createPostRequest("/$chargerId/commands/toggle_charging", body)
         val response = client.newCall(request).execute()
         if(response.isSuccessful) {
             return true
@@ -88,7 +72,7 @@ class EaseeService {
             .build()
     }
 
-    private fun createPostRequest(endpoint: String, body: RequestBody): Request {
+    private fun createPostRequest(endpoint: String, body: RequestBody?): Request {
         return createRequestBuilder(endpoint)
             .post(body)
             .build()

@@ -30,8 +30,8 @@ class SmartChargerTest {
     }
 
     @Test
-    fun setChargingPeriod() {
-        val hasSetChargingPeriod = smartCharger.setChargingPeriod(date, "NO1")
-        assertTrue(hasSetChargingPeriod)
+    fun testToggleCharging() {
+        val hasToggledCharging = smartCharger.toggleCharging()
+        assertTrue(hasToggledCharging)
     }
 }

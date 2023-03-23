@@ -20,10 +20,10 @@ class SmartCharger {
 
     fun setChargingPeriod(date: LocalDate, zone: String): Boolean {
         val lowestPrices = getLowestPrices(date, zone, 5)
-        return easeeService.setChargingPeriod(lowestPrices)
+        return easeeService.toggleCharging()
     }
 
-    fun deleteChargingPeriod() {
+    fun stopCharging() {
 
     }
 }
