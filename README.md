@@ -10,7 +10,7 @@ Strømpriser blir hentet ut slik at man har dagens priser, og når de kommer mor
 
 #### Hvordan bygge
 
-Legg først dockerfile og .jar fil på serveren og kjør 
+Legg først dockerfile og .jar fil på serveren og kjør fra den mappen
 
 ```
 docker build -t steintokvam/smartcharger .
