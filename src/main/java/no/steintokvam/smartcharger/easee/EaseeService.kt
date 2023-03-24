@@ -87,6 +87,6 @@ class EaseeService {
         return Request.Builder()
             .url(BASE_URL+endpoint)
             .addHeader("accept", "application/json")
-            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImN0eSI6IkpXVCJ9.eyJBY2NvdW50SWQiOjU1MzE4LCJVc2VySWQiOjQyMDU4LCJ1bmlxdWVfbmFtZSI6IlN0ZWluIFBldHRlciBUb2t2YW0iLCJyb2xlIjoiVXNlciIsIm5iZiI6MTY3OTU5NDU3MCwiZXhwIjoxNjc5NjgwOTcwLCJpYXQiOjE2Nzk1OTQ1NzB9.0abLNJbLv1ax8unEln1x8rW4EhuU1nbq3AG8au6gNwU")
+            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImN0eSI6IkpXVCJ9.eyJBY2NvdW50SWQiOjU1MzE4LCJVc2VySWQiOjQyMDU4LCJ1bmlxdWVfbmFtZSI6IlN0ZWluIFBldHRlciBUb2t2YW0iLCJyb2xlIjoiVXNlciIsIm5iZiI6MTY3OTY4MzM5NCwiZXhwIjoxNjc5NzY5Nzk0LCJpYXQiOjE2Nzk2ODMzOTR9.bF_NKKV7EGeu5OuaYe3CEqCZkEzcPLGoDS-zF5RzTAo")
     }
 }

@@ -17,13 +17,20 @@ class SmartCharger {
         return easeeService.getChargerState().totalPower > 0
     }
 
-    fun getLowestPrices(date: LocalDateTime, zone: String, hoursToChargeIn: Int, estimatedChargingTime: Int) : List<ElectricityPrice> {
+    fun getLowestPrices(
+        date: LocalDateTime,
+        zone: String,
+        hoursToChargeIn: Int,
+        estimatedChargingTime: Int
+    ) : List<ElectricityPrice> {
         val allPrices = priceService.getPrices(zone, date.toLocalDate())
         val cutOffTime = LocalDateTime.now().plusHours(hoursToChargeIn.toLong())
+
         return allPrices
             .filter { it.time_start.isAfter(LocalDateTime.now()) }
             .filter { it.time_start.isBefore(cutOffTime) }
-            .sortedBy { it.NOK_per_kWh }.subList(0, estimatedChargingTime)
+            .sortedBy { it.NOK_per_kWh }
+            .subList(0, estimatedChargingTime)
     }
 
     fun getChargingTimes(remainingPercent: Int, totalCapacityKwH: Int, finishChargingBy: LocalDateTime): ChargingTimes {
@@ -32,7 +39,12 @@ class SmartCharger {
         //dette er et desimaltall i antall timer
         val estimatedChargeTime = (kwhLeftToCharge / 8.9f).roundToInt()//TODO: burde byttes ut med en variabel satt til hva nå enn nåværende hastighet er
 
-        val lowestPrices = getLowestPrices(LocalDateTime.now(), "NO1", getHoursBetween(LocalDateTime.now(), finishChargingBy), estimatedChargeTime).sortedBy { it.time_start }
+        val lowestPrices = getLowestPrices(
+            LocalDateTime.now(),
+            "NO1",
+            getHoursBetween(LocalDateTime.now(), finishChargingBy),
+            estimatedChargeTime
+        ).sortedBy { it.time_start }
 
         return ChargingTimes(lowestPrices, kwhLeftToCharge, estimatedChargeTime, finishChargingBy)
     }

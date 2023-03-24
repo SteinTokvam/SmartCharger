@@ -21,5 +21,6 @@ class GetPricesJob: Job {
             ValueStore.prices = priceService.getPrices(ValueStore.zone, today)
         }
         LOGGER.info("Got ${ValueStore.prices.size} prices.")
+        LOGGER.info("First price date: ${ValueStore.prices[0].time_start} and lastPrice.start: ${ValueStore.prices[ValueStore.prices.size-1].time_start}")
     }
 }
