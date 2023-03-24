@@ -18,7 +18,7 @@ import kotlin.math.roundToInt
 
 
 class PriceService {
-    private val LOGGER: Logger = LoggerFactory.getLogger(PriceService::class.java)
+    private val LOGGER: Logger = LoggerFactory.getLogger(this::class.java)
     private val BASE_URL = "https://www.hvakosterstrommen.no/api/v1/prices"
     private val client = OkHttpClient()
     private val formatter = DateTimeFormatter.ISO_DATE_TIME

@@ -63,7 +63,7 @@ class EaseeService {
     fun toggleCharging(): Int {
         val chargerId = getChargerId()[0].id
         val body: RequestBody = "".toRequestBody("Application/json".toMediaType())
-        val request = createPostRequest("/$chargerId/commands/toggle_charging", body)
+        val request = createPostRequest("/chargers/$chargerId/commands/toggle_charging", body)
         val response = client.newCall(request).execute()
         if(response.isSuccessful) {
             return response.code

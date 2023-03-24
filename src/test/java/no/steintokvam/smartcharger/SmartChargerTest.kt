@@ -31,7 +31,7 @@ class SmartChargerTest {
     @Test
     fun testToggleCharging() {
         val hasToggledCharging = smartCharger.toggleCharging()
-        assertThat(hasToggledCharging == 400)//Får 400 fordi ingen bil er plugget i og man kan dermed ikke toggle
+        assertTrue(hasToggledCharging == 400)//Får 400 fordi ingen bil er plugget i og man kan dermed ikke toggle
     }
 
     @Test
