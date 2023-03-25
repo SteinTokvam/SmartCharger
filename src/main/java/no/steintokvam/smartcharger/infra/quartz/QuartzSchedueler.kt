@@ -48,5 +48,4 @@ class QuartzSchedueler {
     private fun createPriceJobDetail(): JobDetail {
         return JobBuilder.newJob(GetPricesJob::class.java).withIdentity("createPriceJob", "createPriceGroup").build()
     }
-
 }
