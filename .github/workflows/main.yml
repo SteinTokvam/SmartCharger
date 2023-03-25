@@ -15,6 +15,6 @@ jobs:
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         context: .
-        file: ./Dockerfile
-        push: true
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/smartcharger:latest
