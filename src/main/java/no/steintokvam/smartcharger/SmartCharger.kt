@@ -2,10 +2,12 @@ package no.steintokvam.smartcharger
 
 import no.steintokvam.smartcharger.easee.EaseeService
 import no.steintokvam.smartcharger.electricity.ElectricityPrice
+import no.steintokvam.smartcharger.electricity.PriceService
 import no.steintokvam.smartcharger.infra.ValueStore
 import no.steintokvam.smartcharger.objects.ChargingTimes
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
@@ -30,6 +32,7 @@ class SmartCharger {
         estimatedChargingTime: Int
     ) : List<ElectricityPrice> {
         val allPrices = ValueStore.prices
+
         var cutOffTime = LocalDateTime.now().plusHours(hoursToChargeIn.toLong())
 
         if(cutOffTime.isBefore(LocalDateTime.now())) {
@@ -37,7 +40,7 @@ class SmartCharger {
         }
 
         if(getHoursBetween(LocalDateTime.now(), cutOffTime) < estimatedChargingTime || allPrices.isEmpty()) {
-            //tar lengre tid å lade enn man har til den er ferdig aka må kjøre på
+            //tar lengre tid å lade enn man har til den er ferdig aka må kjøre på eller man har ingen priser
             return emptyList()
         }
 
@@ -108,7 +111,7 @@ class SmartCharger {
             LOGGER.warn("Tried to start charging while we already are charging.")
             return 400
         }
-        return easeeService.startCharging()
+        return easeeService.resumeCharging()
     }
 
     private fun stopCharging(): Int {
@@ -116,6 +119,6 @@ class SmartCharger {
             LOGGER.warn("Tried to stop charging when charging were stopped.")
             return 400
         }
-        return easeeService.stopCharging()
+        return easeeService.pauseCharging()
     }
 }

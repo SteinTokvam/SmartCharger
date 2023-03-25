@@ -55,12 +55,12 @@ class EaseeService {
         return mapper.readValue(response.body?.charStream()?.readText(), ChargerState::class.java)
     }
 
-    fun startCharging(): Int {
-        return toggleCharging("start_charging")
+    fun resumeCharging(): Int {
+        return toggleCharging("resume_charging")
     }
 
-    fun stopCharging(): Int {
-        return toggleCharging("stop_charging")
+    fun pauseCharging(): Int {
+        return toggleCharging("pause_charging")
     }
 
     private fun toggleCharging(command: String): Int {
