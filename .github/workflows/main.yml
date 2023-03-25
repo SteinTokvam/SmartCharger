@@ -19,10 +19,10 @@ jobs:
         
     - name: Build with Maven
       run: mvn clean install
-    - name: Publish to Docker Hub
+    - name: Build and push
       uses: docker/build-push-action@v4
       with:
-       username: ${{ secrets.DOCKERHUB_USERNAME }}
-       password: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-       repository: steintokvam/smartcharger:latest
-       tags: ${{github.run_number}}
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/smartcharger:latest
