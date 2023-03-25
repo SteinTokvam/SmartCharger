@@ -1,14 +1,14 @@
-# we will use openjdk 17 with oracle
+#
+# Build stage
+#
+FROM maven:3.8.3-openjdk-17 AS build
+COPY src /src
+COPY pom.xml ./
+RUN mvn -f ./pom.xml clean package
+
+#
+# Package stage
+#
 FROM openjdk:17-oracle
-ARG PROFILE
-ENV PROFILE_VAR=$PROFILE
-VOLUME /tmp
-## Add the built jar for docker image building
-ADD target/smartcharger.jar smartcharger.jar
-
-## Build a shell script because the ENTRYPOINT command doesn't like using ENV
-RUN echo "#!/bin/bash \n java -Dspring.profiles.active=${PROFILE_VAR} -jar /smartcharger.jar" > ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
-
-## Run the generated shell script.
-ENTRYPOINT ["./entrypoint.sh"]
+COPY --from=build ./target/*.jar target/smartcharger.jar
+ENTRYPOINT ["java","-jar","target/smartcharger.jar"]
