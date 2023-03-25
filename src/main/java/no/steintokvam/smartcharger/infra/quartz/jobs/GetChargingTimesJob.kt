@@ -32,7 +32,6 @@ class GetChargingTimesJob: Job {
 
         val now = LocalDateTime.now()
         if(smartCharger.isChargingFastEnough() && smartCharger.getHoursBetween(ValueStore.lastReestimate, now) > 1) {
-            ValueStore.lastReestimate = now
             getChargingTimes()
         }
     }
@@ -59,6 +58,14 @@ class GetChargingTimesJob: Job {
             }
 
             ValueStore.chargingTimes = ChargingTimes(prices, tmpChargingTimes.kwhLeftToCharge, tmpChargingTimes.estimatedChargeTime, tmpChargingTimes.finnishChargingBy)
+            ValueStore.lastReestimate = LocalDateTime.now()
+            logChargingtimes()
+        }
+    }
+
+    private fun logChargingtimes() {
+        ValueStore.chargingTimes.prices.forEach {
+            LOGGER.info("Price: ${it.NOK_per_kWh} time_start: ${it.time_start} time_end: ${it.time_end}")
         }
     }
 
