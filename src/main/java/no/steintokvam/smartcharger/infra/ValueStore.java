@@ -16,9 +16,9 @@ public class ValueStore {
     public static boolean isSmartCharging = false;
     public static boolean smartChargingEnabled = true;
     public static int remainingPercent = 20;
-    public static int totalCapacityKwH = 76;
+    public static int totalCapacityKwH = 10;//76;
     public static LocalDateTime finnishChargingBy = LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 0));
-    public static float currentChargingSpeed = 0f;
+    public static float currentChargingSpeed = 3f;
 
     public static LocalDateTime lastReestimate = LocalDateTime.now().minusDays(1L);
     public static ChargingTimes chargingTimes = new ChargingTimes(emptyList(), 0, 0, finnishChargingBy);
