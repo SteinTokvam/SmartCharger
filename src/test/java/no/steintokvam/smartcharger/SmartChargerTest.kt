@@ -78,7 +78,7 @@ class SmartChargerTest {
     @Test
     fun testGetPricesIfCanBeChargedInTime() {
         ValueStore.prices = PriceService().getPrices("NO1", LocalDate.now())
-        ValueStore.finnishChargingBy = LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 0))
+        ValueStore.finnishChargingBy = LocalDateTime.now().plusHours(20)
         val tmpChargingTimes = smartCharger.getChargingTimes(
             ValueStore.remainingPercent,
             ValueStore.totalCapacityKwH,

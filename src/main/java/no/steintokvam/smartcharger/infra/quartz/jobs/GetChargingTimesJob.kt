@@ -30,7 +30,9 @@ class GetChargingTimesJob: Job {
 
         updateFinishByTime()
 
-        if(smartCharger.isChargingFastEnough()) {
+        val now = LocalDateTime.now()
+        if(smartCharger.isChargingFastEnough() && smartCharger.getHoursBetween(ValueStore.lastReestimate, now) > 1) {
+            ValueStore.lastReestimate = now
             getChargingTimes()
         }
     }
