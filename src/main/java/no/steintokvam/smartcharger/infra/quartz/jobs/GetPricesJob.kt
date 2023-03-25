@@ -14,7 +14,7 @@ class GetPricesJob: Job {
 
     override fun execute(context: JobExecutionContext?) {
         val today = LocalDate.now()
-        LOGGER.info("Executing getPriceJob at $today")
+
         if(ValueStore.prices.isEmpty()) {
             ValueStore.prices = priceService.getPrices(ValueStore.zone, today)
         } else if(ValueStore.prices.size >= 24) {

@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>no.steintokvam</groupId>
 	<artifactId>smartcharger</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>Smart Charger</name>
 	<description>Smart charger for Easee wallchargers</description>
 	<properties>
