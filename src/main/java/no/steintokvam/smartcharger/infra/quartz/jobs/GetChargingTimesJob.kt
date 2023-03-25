@@ -17,7 +17,6 @@ class GetChargingTimesJob: Job {
     private val smartCharger = SmartCharger()
 
     override fun execute(context: JobExecutionContext?) {
-        LOGGER.info("Executing GetChargingTimesJob.")
         run()
     }
 
@@ -64,6 +63,7 @@ class GetChargingTimesJob: Job {
     }
 
     private fun logChargingtimes() {
+        LOGGER.info("Reestimated prices.")
         ValueStore.chargingTimes.prices.forEach {
             LOGGER.info("Price: ${it.NOK_per_kWh} time_start: ${it.time_start} time_end: ${it.time_end}")
         }
