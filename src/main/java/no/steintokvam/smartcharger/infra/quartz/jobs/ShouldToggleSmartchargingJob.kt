@@ -1,7 +1,6 @@
 package no.steintokvam.smartcharger.infra.quartz.jobs
 
 import no.steintokvam.smartcharger.SmartCharger
-import no.steintokvam.smartcharger.easee.EaseeService
 import no.steintokvam.smartcharger.infra.ValueStore
 import no.steintokvam.smartcharger.objects.ChargingTimes
 import org.quartz.Job
@@ -9,7 +8,6 @@ import org.quartz.JobExecutionContext
 import java.time.LocalDateTime
 
 class ShouldToggleSmartchargingJob: Job {
-    private val easeeService = EaseeService()
 
     override fun execute(context: JobExecutionContext?) {
         //hvis man treffer starttidspunkt så må lading startes

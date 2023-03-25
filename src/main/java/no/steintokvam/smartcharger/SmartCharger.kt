@@ -82,17 +82,23 @@ class SmartCharger {
          */
 
         val now = LocalDateTime.now()
-        if(chargingTimes.prices[0].time_end.isAfter(now)){
+        if(!isChargingFastEnough()) {
+            //lader ikke eller lader for tregt til at vi bryr oss
+            return false
+        }
+
+        if(chargingTimes.prices[0].time_end.isAfter(now) && isChargingFastEnough()){
             //stop charging
             stopCharging()
             return false
         } else if(chargingTimes.prices[0].time_start.isBefore(now) && !isCurrentlyCharging()) {
+            ValueStore.isSmartCharging = true
             //StartCharging
             startCharging()
             return true
-        } else if(LocalTime.now().hour >= chargingTimes.finnishChargingBy.hour && !isCurrentlyCharging()) {
+        } else if(chargingTimes.finnishChargingBy.isAfter(now) && !isCurrentlyCharging()) {
             startCharging()
-            return true
+            return false
         }
         return false
     }

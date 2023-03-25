@@ -54,7 +54,6 @@ class GetChargingTimesJob: Job {
                 prices.removeAt(prices.size-1)
                 prices.add(tmpPrice)
                 lastStartTime = chargeElement.time_start
-
             }
 
             ValueStore.chargingTimes = ChargingTimes(prices, tmpChargingTimes.kwhLeftToCharge, tmpChargingTimes.estimatedChargeTime, tmpChargingTimes.finnishChargingBy)
@@ -64,6 +63,7 @@ class GetChargingTimesJob: Job {
     private fun updateFinishByTime() {
         if(ValueStore.finnishChargingBy.dayOfMonth == LocalDate.now().dayOfMonth
             && ValueStore.finnishChargingBy.toLocalTime().isBefore(LocalTime.now())) {
+            ValueStore.isSmartCharging = false
             //om man har passert tidspunktet til finnishedBy på den dagen man skal være ferdig, så setter man finnishedBy til samme tidspunkt neste dag
             ValueStore.finnishChargingBy = LocalDateTime.of(LocalDate.now().plusDays(1L), LocalTime.of(ValueStore.finnishChargingBy.hour, ValueStore.finnishChargingBy.minute))
         }
