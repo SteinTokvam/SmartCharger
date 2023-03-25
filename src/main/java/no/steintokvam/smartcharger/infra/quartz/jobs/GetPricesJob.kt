@@ -10,10 +10,11 @@ import java.time.LocalDate
 
 class GetPricesJob: Job {
     private val LOGGER: Logger = LoggerFactory.getLogger(this::class.java)
-    val priceService = PriceService()
+    private val priceService = PriceService()
+
     override fun execute(context: JobExecutionContext?) {
         val today = LocalDate.now()
-        LOGGER.info("Excecuting getPriceJob at $today")
+        LOGGER.info("Executing getPriceJob at $today")
         if(ValueStore.prices.isEmpty()) {
             ValueStore.prices = priceService.getPrices(ValueStore.zone, today)
         } else if(ValueStore.prices.size >= 24) {

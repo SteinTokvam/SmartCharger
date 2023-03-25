@@ -1,5 +1,6 @@
 package no.steintokvam.smartcharger.infra.quartz
 
+import no.steintokvam.smartcharger.infra.quartz.jobs.GetChargingTimesJob
 import no.steintokvam.smartcharger.infra.quartz.jobs.GetPricesJob
 import org.quartz.*
 import org.quartz.impl.StdSchedulerFactory
@@ -18,6 +19,7 @@ class QuartzSchedueler {
         schedueler.start()
 
         schedueleJob(createPriceJobTrigger(), createPriceJobDetail(), schedueler)
+        schedueleJob(createGetChargingTimesJobTrigger(), createGetChargingTimesJobDetail(), schedueler)
     }
 
     private fun schedueleJob(trigger: Trigger, jobDetail: JobDetail, schedueler: Scheduler) {
@@ -25,8 +27,18 @@ class QuartzSchedueler {
         LOGGER.info("Job scheduled for " + trigger.nextFireTime.toString())
     }
 
-    private fun createPriceJobTrigger(): Trigger {
+    private fun createGetChargingTimesJobTrigger(): Trigger {
+        return TriggerBuilder.newTrigger()
+            .withIdentity("getGetChargingTimesTrigger", "getGetChargingTimesTrigger")
+            .withSchedule(CronScheduleBuilder.cronSchedule("0 */5 * ? * *"))//At second :00, every 5 minutes starting at minute :00, of every hour
+            .build()
+    }
 
+    private fun createGetChargingTimesJobDetail(): JobDetail {
+        return JobBuilder.newJob(GetChargingTimesJob::class.java).withIdentity("createGetChargingTimesJob", "createGetChargingTimesGroup").build()
+    }
+
+    private fun createPriceJobTrigger(): Trigger {
         return TriggerBuilder.newTrigger()
             .withIdentity("getPriceTrigger", "getPriceTrigger")
             .withSchedule(CronScheduleBuilder.cronSchedule("0 30 1,15 ? * * *"))//At second :00, at minute :30, at 01am and 15pm, of every day

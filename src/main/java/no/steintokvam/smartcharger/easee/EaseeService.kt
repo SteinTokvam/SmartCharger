@@ -9,16 +9,11 @@ import no.steintokvam.smartcharger.easee.objects.AccessToken
 import no.steintokvam.smartcharger.easee.objects.Authentication
 import no.steintokvam.smartcharger.easee.objects.Charger
 import no.steintokvam.smartcharger.easee.objects.ChargerState
-import no.steintokvam.smartcharger.electricity.ElectricityPrice
-import no.steintokvam.smartcharger.objects.Days
-import no.steintokvam.smartcharger.objects.Range
-import no.steintokvam.smartcharger.objects.WeeklyScheduele
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -60,10 +55,18 @@ class EaseeService {
         return mapper.readValue(response.body?.charStream()?.readText(), ChargerState::class.java)
     }
 
-    fun toggleCharging(): Int {
+    fun startCharging(): Int {
+        return toggleCharging("start_charging")
+    }
+
+    fun stopCharging(): Int {
+        return toggleCharging("stop_charging")
+    }
+
+    private fun toggleCharging(command: String): Int {
         val chargerId = getChargerId()[0].id
         val body: RequestBody = "".toRequestBody("Application/json".toMediaType())
-        val request = createPostRequest("/chargers/$chargerId/commands/toggle_charging", body)
+        val request = createPostRequest("/chargers/$chargerId/commands/$command", body)
         val response = client.newCall(request).execute()
         if(response.isSuccessful) {
             return response.code
