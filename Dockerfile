@@ -10,5 +10,5 @@ RUN mvn -f ./pom.xml clean package
 # Package stage
 #
 FROM openjdk:17-oracle
-COPY --from=build ./target/*.jar target/smartcharger.jar
-ENTRYPOINT ["java","-jar","target/smartcharger.jar"]
+COPY --from=build ./target/*.jar smartcharger.jar
+ENTRYPOINT ["java","-jar","/smartcharger.jar"]
