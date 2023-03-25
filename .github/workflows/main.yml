@@ -44,7 +44,7 @@ jobs:
           file: ./Dockerfile
           pull: true
           push: true
-          cache-from: type=registry,ref=hustakin/smartcharger:latest
+          cache-from: type=registry,ref=steintokvam/smartcharger:latest
           cache-to: type=inline
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/smartcharger:latest
           build-args: PROFILE=steintokvam
