@@ -40,7 +40,7 @@ class GetChargingTimesJob: Job {
             ValueStore.remainingPercent,
             ValueStore.totalCapacityKwH,
             ValueStore.finnishChargingBy
-        )
+        )//finner/reestimerer antall timer man må lade basert på hvor langt unna fulladet vi er
         if(tmpChargingTimes.prices.isNotEmpty()) {
             val prices = mutableListOf<ElectricityPrice>()
             var lastStartTime = tmpChargingTimes.prices[0].time_start.minusHours(2L)

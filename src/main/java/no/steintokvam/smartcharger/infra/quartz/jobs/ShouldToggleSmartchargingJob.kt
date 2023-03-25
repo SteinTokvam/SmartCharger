@@ -7,7 +7,7 @@ import org.quartz.Job
 import org.quartz.JobExecutionContext
 import java.time.LocalDateTime
 
-class ShouldToggleSmartchargingJob: Job {
+class ShouldToggleSmartchargingJob: Job {//TODO: sett opp en trigger
 
     override fun execute(context: JobExecutionContext?) {
         //hvis man treffer starttidspunkt så må lading startes

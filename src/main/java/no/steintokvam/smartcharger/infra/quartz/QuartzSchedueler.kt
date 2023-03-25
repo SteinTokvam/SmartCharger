@@ -18,16 +18,16 @@ class QuartzSchedueler {
         val schedueler: Scheduler = scheduelerFactory.scheduler
         schedueler.start()
 
-        schedueleJob(createPriceJobTrigger(), createPriceJobDetail(), schedueler)
-        schedueleJob(createGetChargingTimesJobTrigger(), createGetChargingTimesJobDetail(), schedueler)
+        scheduleJob(createPriceJobTrigger(), createPriceJobDetail(), schedueler)
+        scheduleJob(createGetChargingTimesJobTrigger(), createGetChargingTimesJobDetail(), schedueler)
     }
 
-    private fun schedueleJob(trigger: Trigger, jobDetail: JobDetail, schedueler: Scheduler) {
+    private fun scheduleJob(trigger: Trigger, jobDetail: JobDetail, schedueler: Scheduler) {
         schedueler.scheduleJob(jobDetail, trigger)
         LOGGER.info("Job scheduled for " + trigger.nextFireTime.toString())
     }
 
-    private fun createGetChargingTimesJobTrigger(): Trigger {
+    private fun createGetChargingTimesJobTrigger(): Trigger {//denne vil da reestimere ladetiden hvert 5 minutt sett at det er en bil som lader fort nok for øyeblikket
         return TriggerBuilder.newTrigger()
             .withIdentity("getGetChargingTimesTrigger", "getGetChargingTimesTrigger")
             .withSchedule(CronScheduleBuilder.cronSchedule("0 */5 * ? * *"))//At second :00, every 5 minutes starting at minute :00, of every hour
@@ -47,20 +47,6 @@ class QuartzSchedueler {
 
     private fun createPriceJobDetail(): JobDetail {
         return JobBuilder.newJob(GetPricesJob::class.java).withIdentity("createPriceJob", "createPriceGroup").build()
-    }
-
-    private fun createTrigger(): Trigger {
-        //initialize time interval
-        val timeInterval = 60
-
-        //create a trigger to be returned from the method
-
-        // triggerNew to schedule it in main() method
-        return TriggerBuilder.newTrigger().withIdentity("NAME_OF_TRIGGER", "NAME_OF_GROUP")
-            .withSchedule(
-                SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(timeInterval).repeatForever()
-            )
-            .build()
     }
 
 }
