@@ -14,18 +14,19 @@ public class SmartChargerApplication {
 	public static void main(String[] args) {
 		Logger LOGGER = LoggerFactory.getLogger(SmartChargerApplication.class);
 		SpringApplication.run(SmartChargerApplication.class, args);
-		String chargingTimes = String.format("""
-    			{
-    				prices: [],
-    				kwhLeftToCharge: 0,
-    				estimatedChargeTime: 0,
-    				finnishChargingBy: %s
-    			}
+		String chargingTimes = String.format(
+       """
+    {
+    	prices: [],
+    	kwhLeftToCharge: 0,
+    	estimatedChargeTime: 0,
+    	finnishChargingBy: %s
+    }
 """, ValueStore.finnishChargingBy.toString());
 		LOGGER.info(String.format("""
 				ValueStore
 				  isCurrentlyCharging = %s
-				  isSmartCharging = %S
+				  isSmartCharging = %s
 				  smartChargingEnabled = %s
 				  remainingPercent = %d
 				  totalCapacityKwH = %d
@@ -42,7 +43,7 @@ public class SmartChargerApplication {
 				ValueStore.totalCapacityKwH,
 				ValueStore.finnishChargingBy,
 				ValueStore.currentChargingSpeed,
-				ValueStore.lastReestimate.toString(),
+				ValueStore.lastReestimate,
 				chargingTimes,
 				"[]",
 				ValueStore.zone));
