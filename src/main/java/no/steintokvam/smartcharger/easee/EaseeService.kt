@@ -5,16 +5,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import no.steintokvam.smartcharger.easee.objects.AccessToken
-import no.steintokvam.smartcharger.easee.objects.Authentication
-import no.steintokvam.smartcharger.easee.objects.Charger
-import no.steintokvam.smartcharger.easee.objects.ChargerState
+import no.steintokvam.smartcharger.easee.objects.*
 import no.steintokvam.smartcharger.infra.ValueStore
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -36,11 +34,24 @@ class EaseeService {
     fun authenticate(user: String, password: String): AccessToken {
         val auth = mapper.writeValueAsString(Authentication(user, password))
         val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
-        val request = createPostRequest("/accounts/login", body)
-        val response = client.newCall(request).execute()
+        val response = authCall("/accounts/login", body)
         val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
         ValueStore.accessToken = accessToken
         return accessToken
+    }
+
+    fun refreshToken(): AccessToken {
+        val auth = mapper.writeValueAsString(RefreshToken(ValueStore.accessToken.refreshToken, ValueStore.accessToken.refreshToken))
+        val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
+        val response = authCall("/accounts/refresh_token", body)
+        val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
+        ValueStore.accessToken = accessToken
+        return accessToken
+    }
+
+    private fun authCall(endpoint: String, body: RequestBody): Response {
+        val request = createPostRequest(endpoint, body)
+        return client.newCall(request).execute()
     }
 
     fun getChargerId(): List<Charger> {

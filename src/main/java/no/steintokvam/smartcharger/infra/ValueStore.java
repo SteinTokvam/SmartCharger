@@ -14,7 +14,7 @@ import static java.util.Collections.emptyList;
 
 public class ValueStore {
 
-    public static AccessToken accessToken =
+    public static AccessToken accessToken = new AccessToken("", 0, emptyList(), "", "");
     public static boolean isCurrentlyCharging = false;
     public static boolean isSmartCharging = false;
     public static boolean smartChargingEnabled = true;
