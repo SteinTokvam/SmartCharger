@@ -9,6 +9,7 @@ import no.steintokvam.smartcharger.easee.objects.AccessToken
 import no.steintokvam.smartcharger.easee.objects.Authentication
 import no.steintokvam.smartcharger.easee.objects.Charger
 import no.steintokvam.smartcharger.easee.objects.ChargerState
+import no.steintokvam.smartcharger.infra.ValueStore
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -37,7 +38,9 @@ class EaseeService {
         val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
         val request = createPostRequest("/accounts/login", body)
         val response = client.newCall(request).execute()
-        return mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
+        val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
+        ValueStore.accessToken = accessToken
+        return accessToken
     }
 
     fun getChargerId(): List<Charger> {
