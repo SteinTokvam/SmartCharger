@@ -41,7 +41,7 @@ class QuartzSchedueler {
     private fun createPriceJobTrigger(): Trigger {
         return TriggerBuilder.newTrigger()
             .withIdentity("getPriceTrigger", "getPriceTrigger")
-            .withSchedule(CronScheduleBuilder.cronSchedule("0 0 1,18 ? * * *"))//At second :00, at minute :30, at 01am and 15pm, of every day
+            .withSchedule(CronScheduleBuilder.cronSchedule("0 15 14 ? * * *"))//At 14:15:00pm every day
             .build()
     }
 

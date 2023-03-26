@@ -8,7 +8,6 @@ import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -27,10 +26,10 @@ class GetChargingTimesJob: Job {
             return
         }
 
-        updateFinishByTime()
-
         val now = LocalDateTime.now()
-        if(smartCharger.isChargingFastEnough() && smartCharger.getHoursBetween(ValueStore.lastReestimate, now) > 1) {
+        updateFinishByTime(now)
+
+        if(/*smartCharger.isChargingFastEnough() &&*/ smartCharger.getHoursBetween(ValueStore.lastReestimate, now) > 1) {
             getChargingTimes()
         }
     }
@@ -69,12 +68,13 @@ class GetChargingTimesJob: Job {
         }
     }
 
-    private fun updateFinishByTime() {
-        if(ValueStore.finnishChargingBy.dayOfMonth == LocalDate.now().dayOfMonth
-            && ValueStore.finnishChargingBy.toLocalTime().isBefore(LocalTime.now())) {
+    private fun updateFinishByTime(now: LocalDateTime) {
+        if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
+            && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
             ValueStore.isSmartCharging = false
             //om man har passert tidspunktet til finnishedBy på den dagen man skal være ferdig, så setter man finnishedBy til samme tidspunkt neste dag
-            ValueStore.finnishChargingBy = LocalDateTime.of(LocalDate.now().plusDays(1L), LocalTime.of(ValueStore.finnishChargingBy.hour, ValueStore.finnishChargingBy.minute))
+            ValueStore.finnishChargingBy = LocalDateTime.of(now.toLocalDate().plusDays(1L), LocalTime.of(ValueStore.finnishChargingBy.hour, ValueStore.finnishChargingBy.minute))
+            LOGGER.info("isSmartCharging is set to ${ValueStore.isSmartCharging} and finnishChargingBy to ${ValueStore.finnishChargingBy}")
         }
     }
 }

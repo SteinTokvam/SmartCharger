@@ -15,6 +15,7 @@ class ShouldToggleSmartchargingJob: Job {//TODO: sett opp en trigger
         if(hasStarted && ValueStore.chargingTimes.prices[0].time_end.isAfter(LocalDateTime.now())) {
             val tmpPrices = ValueStore.chargingTimes.prices.toMutableList()
             tmpPrices.removeAt(0)
+            //TODO: må oppdatre batterinivå før kall på denne
             val kwhLeftToCharge = ValueStore.totalCapacityKwH - SmartCharger().calculateBatteryLevel(
                 ValueStore.remainingPercent,
                 ValueStore.totalCapacityKwH

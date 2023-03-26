@@ -2,14 +2,11 @@ package no.steintokvam.smartcharger
 
 import no.steintokvam.smartcharger.easee.EaseeService
 import no.steintokvam.smartcharger.electricity.ElectricityPrice
-import no.steintokvam.smartcharger.electricity.PriceService
 import no.steintokvam.smartcharger.infra.ValueStore
 import no.steintokvam.smartcharger.objects.ChargingTimes
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
@@ -28,25 +25,18 @@ class SmartCharger {
 
     private fun getLowestPrices(
         date: LocalDateTime,
-        hoursToChargeIn: Int,
         estimatedChargingTime: Int
     ) : List<ElectricityPrice> {
         val allPrices = ValueStore.prices
 
-        var cutOffTime = LocalDateTime.now().plusHours(hoursToChargeIn.toLong())
-
-        if(cutOffTime.isBefore(LocalDateTime.now())) {
-            cutOffTime = LocalDateTime.of(date.toLocalDate().plusDays(1L), LocalTime.now().plusHours(hoursToChargeIn.toLong()))
-        }
-
-        if(getHoursBetween(LocalDateTime.now(), cutOffTime) < estimatedChargingTime || allPrices.isEmpty()) {
+        if(getHoursBetween(date, ValueStore.finnishChargingBy) < estimatedChargingTime || allPrices.isEmpty()) {
             //tar lengre tid å lade enn man har til den er ferdig aka må kjøre på eller man har ingen priser
             return emptyList()
         }
 
         return allPrices
-            .filter { it.time_start.isAfter(LocalDateTime.now()) }
-            .filter { it.time_start.isBefore(cutOffTime) }
+            .filter { it.time_start.isAfter(date) || it.time_start.hour == date.hour}
+            .filter { it.time_start.isBefore(ValueStore.finnishChargingBy) }
             .sortedBy { it.NOK_per_kWh }
             .subList(0, estimatedChargingTime)
     }
@@ -59,7 +49,6 @@ class SmartCharger {
 
         val lowestPrices = getLowestPrices(
             LocalDateTime.now(),
-            getHoursBetween(LocalDateTime.now(), finishChargingBy),
             estimatedChargeTime
         )
 
