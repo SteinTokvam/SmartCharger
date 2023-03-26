@@ -1,4 +1,5 @@
 # SmartCharger
+![example workflow](https://github.com/steintokvam/smartcharger/actions/workflows/main.yml/badge.svg)
 
 Program for å koble seg på Easee sin veggboks for å lade den på billigst mulig tidspunkt sett at tilkoblet bil lader med tilstrekklig hastighet. Det bil si at den lader smart dersom man kan lade raskt, mens om det blir koblet på en bil som lader tregt som for eksempel en plug in hybrid som ofte har små batterier så skal den gi strøm med en gang så det lille batteriet alltid blir ladet.
 
