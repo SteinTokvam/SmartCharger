@@ -35,7 +35,7 @@ class GetChargingTimesJob: Job {
     }
 
     private fun getChargingTimes() {
-        val tmpChargingTimes = smartCharger.getChargingTimes(
+        val tmpChargingTimes = smartCharger.getChargingTimes(//TODO: denne tryner om den ikke klarer å finne noen priser
             ValueStore.remainingPercent,
             ValueStore.totalCapacityKwH,
             ValueStore.finnishChargingBy

@@ -36,7 +36,7 @@ class PriceService {
     fun getPrices(zone: String, date: LocalDate): List<ElectricityPrice> {
         val prices: MutableList<ElectricityPrice> = getPriceForDay(zone, date)
 
-        if(LocalTime.now().isAfter(LocalTime.of(15,0))) {
+        if(LocalTime.now().isAfter(LocalTime.of(14,0))) {
             prices.addAll(getPriceForDay(zone, date.plusDays(1)))
         }
 
