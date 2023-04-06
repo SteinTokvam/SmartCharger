@@ -34,10 +34,18 @@ class SmartCharger {
             return emptyList()
         }
 
-        return allPrices
-            .filter { it.time_start.isAfter(date) || it.time_start.hour == date.hour}
+        val sortedPrices = allPrices
+            .filter { it.time_start.isAfter(date) || it.time_start.hour == date.hour }
             .filter { it.time_start.isBefore(ValueStore.finnishChargingBy) }
             .sortedBy { it.NOK_per_kWh }
+
+        if(sortedPrices.size < estimatedChargingTime) {
+            LOGGER.error("Has ${sortedPrices.size} prices, but expected to have at least $estimatedChargingTime prices.")
+            LOGGER.info("Has ${allPrices.size} unfiltered prices. Finnish charging by is: ${ValueStore.finnishChargingBy}")
+            LOGGER.info("All prices:")
+            allPrices.forEach { LOGGER.info("${it.time_start}") }
+        }
+        return sortedPrices
             .subList(0, estimatedChargingTime)
     }
 

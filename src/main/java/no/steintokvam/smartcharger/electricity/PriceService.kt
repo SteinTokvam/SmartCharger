@@ -59,11 +59,21 @@ class PriceService {
     private fun Float.format(scale: Int) = "%.${scale}f".format(Locale.US, this).toFloat()
 
     private fun createRequest(zone: String, date: LocalDate): Request {
+        val day = date.dayOfMonth
         val month = date.monthValue
-        val endpoint = if (month > 10)
-            "/" + date.year + "/" + month + "-" + date.dayOfMonth + "_" + zone + ".json"
+        val monthEndpoint = if (month > 10)
+            "/$month"
         else
-            "/" + date.year + "/0" + month + "-" + date.dayOfMonth + "_" + zone + ".json"
+            "/0$month"
+
+        val dayEndpoint = if (day > 10)
+            "-$day"
+        else
+            "-0$day"
+
+        val endpoint =
+            "/" + date.year + monthEndpoint + dayEndpoint + "_" + zone + ".json"
+
 
         return Request.Builder()
             .url(BASE_URL + endpoint)
