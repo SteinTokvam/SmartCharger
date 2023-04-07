@@ -13,7 +13,7 @@ class GetChargingTimesJobTest() {
     @Test
     fun testGetChargingTimeJob() {//TODO: må mocke at det lades
         ValueStore.prices = PriceService().getPrices("NO1", LocalDate.now())
-        GetChargingTimesJob().run()
+        GetChargingTimesJob().run(null)
 /*
 
         assertTrue(ValueStore.chargingTimes.prices[0].time_start.hour == 11)

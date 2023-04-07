@@ -5,21 +5,28 @@ import no.steintokvam.smartcharger.electricity.ElectricityPrice
 import no.steintokvam.smartcharger.infra.ValueStore
 import no.steintokvam.smartcharger.objects.ChargingTimes
 import org.quartz.Job
+import org.quartz.JobBuilder
+import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
+import org.quartz.Scheduler
+import org.quartz.TriggerBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneOffset
+import java.util.*
+
 
 class GetChargingTimesJob: Job {
     private val LOGGER: Logger = LoggerFactory.getLogger(this::class.java)
     private val smartCharger = SmartCharger()
 
     override fun execute(context: JobExecutionContext?) {
-        run()
+        run(context)
     }
 
-    fun run() {
+    fun run(context: JobExecutionContext?) {
         if(ValueStore.prices.isEmpty()) {
             //if no prices then we do not need to get the times to charge
             LOGGER.warn("Got no prices!")
@@ -58,6 +65,24 @@ class GetChargingTimesJob: Job {
             ValueStore.chargingTimes = ChargingTimes(prices, tmpChargingTimes.kwhLeftToCharge, tmpChargingTimes.estimatedChargeTime, tmpChargingTimes.finnishChargingBy)
             ValueStore.lastReestimate = LocalDateTime.now()
             logChargingtimes()
+        }
+    }
+
+    private fun schedueleCharging(context: JobExecutionContext?) {
+        val dataMap: JobDataMap = context!!.jobDetail.jobDataMap
+
+        val schedueler = dataMap["schedueler"]
+        if(schedueler is Scheduler && ValueStore.chargingTimes.prices.isNotEmpty()) {
+            val trigger = TriggerBuilder.newTrigger()
+                .withIdentity("startCharging", "chargingGroup")
+                .startAt(Date.from(ValueStore.chargingTimes.prices[0].time_start.toInstant(ZoneOffset.of(ZoneOffset.systemDefault().toString()))))
+                .build()
+            val jobDetail = JobBuilder.newJob(StartChargingJob::class.java)
+                .withIdentity("startChargingJob", "chargingGroup")
+                .build()
+            schedueler.scheduleJob(jobDetail,trigger)//starter å lade ved første ladetid
+        } else {
+            LOGGER.error("Schedueler not sent to schedueler variable! got ${schedueler!!::class.java}. Can't start charging.")
         }
     }
 

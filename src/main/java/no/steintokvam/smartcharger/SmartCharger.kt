@@ -76,35 +76,7 @@ class SmartCharger {
         return (totalCapacityKwH * (remainingPercent / 100f)).roundToInt()
     }
 
-    fun runSmartcharging(chargingTimes: ChargingTimes): Boolean {//Burde heller returnere status.. lader/lader_ikke
-        /*
-        * Denne forventer at timene er sortert på den som kommer først, og at når timen er over så fjernes den fra listen så man alltid
-        * får inn neste ladeperiode på første element
-         */
-
-        val now = LocalDateTime.now()
-        if(!isChargingFastEnough()) {
-            //lader ikke eller lader for tregt til at vi bryr oss
-            return false
-        }
-
-        if(chargingTimes.prices[0].time_end.isAfter(now) && isChargingFastEnough()){
-            //stop charging
-            stopCharging()
-            return false
-        } else if(chargingTimes.prices[0].time_start.isBefore(now) && !isCurrentlyCharging()) {
-            ValueStore.isSmartCharging = true
-            //StartCharging
-            startCharging()
-            return true
-        } else if(chargingTimes.finnishChargingBy.isAfter(now) && !isCurrentlyCharging()) {
-            startCharging()
-            return false
-        }
-        return false
-    }
-
-    private fun startCharging(): Int {
+    fun startCharging(): Int {
         if(isCurrentlyCharging()) {
             LOGGER.warn("Tried to start charging while we already are charging.")
             return 400
@@ -112,7 +84,7 @@ class SmartCharger {
         return easeeService.resumeCharging()
     }
 
-    private fun stopCharging(): Int {
+    fun stopCharging(): Int {
         if(!isCurrentlyCharging()) {
             LOGGER.warn("Tried to stop charging when charging were stopped.")
             return 400

@@ -20,7 +20,7 @@ class QuartzSchedueler {
         schedueler.start()
 
         scheduleJob(createPriceJobTrigger(), createPriceJobDetail(), schedueler)
-        scheduleJob(createGetChargingTimesJobTrigger(), createGetChargingTimesJobDetail(), schedueler)
+        scheduleJob(createGetChargingTimesJobTrigger(), createGetChargingTimesJobDetail(schedueler), schedueler)
         scheduleJob(createAuthenticationJobTrigger(), createAuthenticationJobDetail(), schedueler)
     }
 
@@ -47,8 +47,11 @@ class QuartzSchedueler {
             .build()
     }
 
-    private fun createGetChargingTimesJobDetail(): JobDetail {
-        return JobBuilder.newJob(GetChargingTimesJob::class.java).withIdentity("createGetChargingTimesJob", "createGetChargingTimesGroup").build()
+    private fun createGetChargingTimesJobDetail(schedueler: Scheduler): JobDetail {
+        return JobBuilder.newJob(GetChargingTimesJob::class.java)
+            .withIdentity("createGetChargingTimesJob", "createGetChargingTimesGroup")
+            .setJobData(JobDataMap(mutableMapOf(Pair("schedueler", schedueler))))
+            .build()
     }
 
     private fun createPriceJobTrigger(): Trigger {
