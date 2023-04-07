@@ -1,8 +1,6 @@
 package no.steintokvam.smartcharger;
 
 import no.steintokvam.smartcharger.easee.EaseeService;
-import no.steintokvam.smartcharger.easee.objects.AccessToken;
-import no.steintokvam.smartcharger.electricity.ElectricityPrice;
 import no.steintokvam.smartcharger.electricity.PriceService;
 import no.steintokvam.smartcharger.infra.ValueStore;
 import no.steintokvam.smartcharger.infra.quartz.QuartzSchedueler;
@@ -19,7 +17,7 @@ public class SmartChargerApplication {
 	public static void main(String[] args) {
 		Logger LOGGER = LoggerFactory.getLogger(SmartChargerApplication.class);
 		String user = System.getenv("user");
-		String passwd = System.getenv("passord");
+		String passwd = System.getenv("password");
 		if(user.isEmpty() || passwd.isEmpty()) {
 			LOGGER.info("User or password is empty. exiting.");
 			return;
