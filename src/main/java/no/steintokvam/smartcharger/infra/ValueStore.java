@@ -25,6 +25,8 @@ public class ValueStore {
 
     public static float chargingThreshold = 1f;
 
+    public static boolean smartChargingSchedueled = false;
+
     public static LocalDateTime lastReestimate = LocalDateTime.now().minusDays(1L);
     public static ChargingTimes chargingTimes = new ChargingTimes(emptyList(), 0, 0, finnishChargingBy);
 

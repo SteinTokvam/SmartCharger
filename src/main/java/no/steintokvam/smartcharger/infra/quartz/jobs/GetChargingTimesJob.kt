@@ -43,6 +43,9 @@ class GetChargingTimesJob: Job {
         updateFinishByTime(now)
         smartCharger.updateCurrentChargingSpeed()
         if(smartCharger.isChargingFastEnough() && smartCharger.getHoursBetween(ValueStore.lastReestimate, now) > 1) {
+            if(ValueStore.smartChargingSchedueled) {
+                return
+            }
             getChargingTimes()
             schedueleCharging(context)
         }
@@ -90,6 +93,8 @@ class GetChargingTimesJob: Job {
                 .build()
             schedueler.scheduleJob(jobDetail, trigger)//starter å lade ved første ladetid
             LOGGER.info("Smartcharging schedueled to start at ${trigger.nextFireTime}")
+            ValueStore.smartChargingSchedueled = true
+            smartCharger.stopCharging()
         } else {
             LOGGER.error("Schedueler not sent to schedueler variable! got ${schedueler!!::class.java}. Can't start charging.")
         }
@@ -106,6 +111,8 @@ class GetChargingTimesJob: Job {
         if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
             && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
             ValueStore.isSmartCharging = false
+            ValueStore.smartChargingSchedueled = false
+            smartCharger.startCharging()
             //om man har passert tidspunktet til finnishedBy på den dagen man skal være ferdig, så setter man finnishedBy til samme tidspunkt neste dag
             ValueStore.finnishChargingBy = LocalDateTime.of(now.toLocalDate().plusDays(1L), LocalTime.of(ValueStore.finnishChargingBy.hour, ValueStore.finnishChargingBy.minute))
             LOGGER.info("isSmartCharging is set to ${ValueStore.isSmartCharging} and finnishChargingBy to ${ValueStore.finnishChargingBy}")
