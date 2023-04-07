@@ -44,6 +44,7 @@ class SmartCharger {
             LOGGER.info("Has ${allPrices.size} unfiltered prices. Finnish charging by is: ${ValueStore.finnishChargingBy}")
             LOGGER.info("All prices:")
             allPrices.forEach { LOGGER.info("${it.time_start}") }
+            return sortedPrices
         }
         return sortedPrices
             .subList(0, estimatedChargingTime)

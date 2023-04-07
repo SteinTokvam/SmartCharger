@@ -1,5 +1,7 @@
 package no.steintokvam.smartcharger;
 
+import no.steintokvam.smartcharger.easee.EaseeService;
+import no.steintokvam.smartcharger.easee.objects.AccessToken;
 import no.steintokvam.smartcharger.infra.ValueStore;
 import no.steintokvam.smartcharger.infra.quartz.QuartzSchedueler;
 import org.slf4j.Logger;
@@ -13,6 +15,13 @@ public class SmartChargerApplication {
 	
 	public static void main(String[] args) {
 		Logger LOGGER = LoggerFactory.getLogger(SmartChargerApplication.class);
+		String user = System.getenv("user");
+		String passwd = System.getenv("passord");
+		if(user.isEmpty() || passwd.isEmpty()) {
+			LOGGER.info("User or password is empty. exiting.");
+			return;
+		}
+		ValueStore.accessToken = new EaseeService().authenticate(user, passwd);
 		SpringApplication.run(SmartChargerApplication.class, args);
 		String chargingTimes = String.format(
        """

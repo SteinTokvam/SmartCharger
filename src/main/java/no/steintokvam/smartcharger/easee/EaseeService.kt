@@ -41,7 +41,7 @@ class EaseeService {
     }
 
     fun refreshToken(): AccessToken {
-        val auth = mapper.writeValueAsString(RefreshToken(ValueStore.accessToken.refreshToken, ValueStore.accessToken.refreshToken))
+        val auth = mapper.writeValueAsString(RefreshToken(ValueStore.accessToken.accessToken, ValueStore.accessToken.refreshToken))
         val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
         val response = authCall("/accounts/refresh_token", body)
         val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
@@ -104,6 +104,6 @@ class EaseeService {
         return Request.Builder()
             .url(BASE_URL+endpoint)
             .addHeader("accept", "application/json")
-            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImN0eSI6IkpXVCJ9.eyJBY2NvdW50SWQiOjU1MzE4LCJVc2VySWQiOjQyMDU4LCJ1bmlxdWVfbmFtZSI6IlN0ZWluIFBldHRlciBUb2t2YW0iLCJyb2xlIjoiVXNlciIsIm5iZiI6MTY4MDc4MDczNCwiZXhwIjoxNjgwODY3MTM0LCJpYXQiOjE2ODA3ODA3MzR9.uMEVumyEKEBDUd7kPpOwBdcix5SePKHZUnqBiwDgFOM")
+            .addHeader("Authorization", "Bearer ${ValueStore.accessToken.accessToken}")
     }
 }

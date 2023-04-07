@@ -1,5 +1,6 @@
 package no.steintokvam.smartcharger.infra.quartz
 
+import no.steintokvam.smartcharger.infra.quartz.jobs.AuthenticationJob
 import no.steintokvam.smartcharger.infra.quartz.jobs.GetChargingTimesJob
 import no.steintokvam.smartcharger.infra.quartz.jobs.GetPricesJob
 import org.quartz.*
@@ -20,11 +21,23 @@ class QuartzSchedueler {
 
         scheduleJob(createPriceJobTrigger(), createPriceJobDetail(), schedueler)
         scheduleJob(createGetChargingTimesJobTrigger(), createGetChargingTimesJobDetail(), schedueler)
+        scheduleJob(createAuthenticationJobTrigger(), createAuthenticationJobDetail(), schedueler)
     }
 
     private fun scheduleJob(trigger: Trigger, jobDetail: JobDetail, schedueler: Scheduler) {
         schedueler.scheduleJob(jobDetail, trigger)
         LOGGER.info("Job scheduled for " + trigger.nextFireTime.toString())
+    }
+
+    private fun createAuthenticationJobTrigger(): Trigger {
+        return TriggerBuilder.newTrigger()
+            .withIdentity("authenticationJobTrigger", "authenticationJobTrigger")
+            .withSchedule(CronScheduleBuilder.cronSchedule("* * 0/23 ? * * *"))//Every 23 hours starting at 00am
+            .build()
+    }
+
+    private fun createAuthenticationJobDetail(): JobDetail {
+        return JobBuilder.newJob(AuthenticationJob::class.java).withIdentity("authenticationJob", "authenticationGroup").build()
     }
 
     private fun createGetChargingTimesJobTrigger(): Trigger {//denne vil da reestimere ladetiden hvert 5 minutt sett at det er en bil som lader fort nok for øyeblikket
