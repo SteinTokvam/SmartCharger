@@ -1,6 +1,7 @@
 package no.steintokvam.smartcharger.infra.quartz.jobs
 
 import no.steintokvam.smartcharger.SmartCharger
+import no.steintokvam.smartcharger.easee.EaseeService
 import no.steintokvam.smartcharger.electricity.ElectricityPrice
 import no.steintokvam.smartcharger.infra.ValueStore
 import no.steintokvam.smartcharger.objects.ChargingTimes
@@ -14,6 +15,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.*
 
@@ -27,6 +29,10 @@ class GetChargingTimesJob: Job {
     }
 
     fun run(context: JobExecutionContext?) {
+        if(!ValueStore.smartChargingEnabled) {
+            LOGGER.info("Smartcharging is not enabled.")
+            return
+        }
         if(ValueStore.prices.isEmpty()) {
             //if no prices then we do not need to get the times to charge
             LOGGER.warn("Got no prices!")
@@ -38,6 +44,7 @@ class GetChargingTimesJob: Job {
 
         if(/*smartCharger.isChargingFastEnough() &&*/ smartCharger.getHoursBetween(ValueStore.lastReestimate, now) > 1) {
             getChargingTimes()
+            schedueleCharging(context)
         }
     }
 
@@ -73,14 +80,16 @@ class GetChargingTimesJob: Job {
 
         val schedueler = dataMap["schedueler"]
         if(schedueler is Scheduler && ValueStore.chargingTimes.prices.isNotEmpty()) {
+
             val trigger = TriggerBuilder.newTrigger()
                 .withIdentity("startCharging", "chargingGroup")
-                .startAt(Date.from(ValueStore.chargingTimes.prices[0].time_start.toInstant(ZoneOffset.of(ZoneOffset.systemDefault().toString()))))
+                .startAt(Date.from(ValueStore.chargingTimes.prices[0].time_start.atZone(ZoneId.systemDefault()).toInstant()))
                 .build()
             val jobDetail = JobBuilder.newJob(StartChargingJob::class.java)
                 .withIdentity("startChargingJob", "chargingGroup")
                 .build()
-            schedueler.scheduleJob(jobDetail,trigger)//starter å lade ved første ladetid
+            schedueler.scheduleJob(jobDetail, trigger)//starter å lade ved første ladetid
+            LOGGER.info("Smartcharging schedueled to start at ${trigger.nextFireTime}")
         } else {
             LOGGER.error("Schedueler not sent to schedueler variable! got ${schedueler!!::class.java}. Can't start charging.")
         }
