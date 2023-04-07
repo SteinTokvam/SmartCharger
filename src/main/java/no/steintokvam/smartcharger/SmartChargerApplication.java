@@ -16,13 +16,13 @@ public class SmartChargerApplication {
 
 	public static void main(String[] args) {
 		Logger LOGGER = LoggerFactory.getLogger(SmartChargerApplication.class);
-		String user = System.getenv("user");
-		String passwd = System.getenv("password");
-		if(user.isEmpty() || passwd.isEmpty()) {
-			LOGGER.info("User or password is empty. exiting.");
-			return;
-		}
-		ValueStore.accessToken = new EaseeService().authenticate(user, passwd);
+		//String user = System.getenv("user");
+		//String passwd = System.getenv("password");
+		//if(user.isEmpty() || passwd.isEmpty()) {
+		//	LOGGER.info("User or password is empty. exiting.");
+		//	return;
+		//}
+		//ValueStore.accessToken = new EaseeService().authenticate(user, passwd);
 		LOGGER.info("Authenticated against Easee.cloud");
 		ValueStore.prices = new PriceService().getPrices(ValueStore.zone, LocalDate.now());
 		SpringApplication.run(SmartChargerApplication.class, args);

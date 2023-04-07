@@ -10,6 +10,6 @@ class StatusApi {
 
     @GetMapping("/status")
     fun status(): Status {
-        return Status(ValueStore.isSmartCharging, ValueStore.currentChargingSpeed, ValueStore.chargingTimes, ValueStore.smartChargingEnabled)
+        return Status(ValueStore.isSmartCharging, ValueStore.currentChargingSpeed, ValueStore.smartChargingEnabled, ValueStore.chargingThreshold, ValueStore.chargingTimes)
     }
 }

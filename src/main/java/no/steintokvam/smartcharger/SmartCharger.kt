@@ -16,11 +16,17 @@ class SmartCharger {
     private val easeeService = EaseeService()
 
     fun isChargingFastEnough(): Boolean {
-        return easeeService.getChargerState().totalPower > 1f
+        return easeeService.getChargerState().totalPower > ValueStore.chargingThreshold
     }
 
     private fun isCurrentlyCharging(): Boolean {
-        return easeeService.getChargerState().totalPower > 0f
+        val chargerState = easeeService.getChargerState()
+        return chargerState.totalPower > 0f
+    }
+
+    fun updateCurrentChargingSpeed() {
+        val chargerState = easeeService.getChargerState()
+        ValueStore.currentChargingSpeed = chargerState.totalPower
     }
 
     private fun getLowestPrices(
