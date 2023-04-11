@@ -52,7 +52,7 @@ class GetChargingTimesJob: Job {
     }
 
     private fun updateBatteryPercent() {
-        ValueStore.remainingPercent = smartCharger.calculateRemainingBatteryPercent(ValueStore.totalCapacityKwH)
+        ValueStore.remainingPercent = smartCharger.calculateRemainingBatteryPercent()
     }
 
     private fun getChargingTimes() {

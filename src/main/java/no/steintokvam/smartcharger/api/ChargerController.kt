@@ -38,4 +38,10 @@ class ChargerController {
     fun setTotalCapacity(@RequestParam totalCapacity: Int) {
         ValueStore.totalCapacityKwH = totalCapacity
     }
+
+    @PostMapping("/smartcharging/remainingPercent")
+    fun setRemainingPercent(@RequestParam remainingPercent: Int) {
+        ValueStore.initialBatteryPercent = remainingPercent
+        ValueStore.remainingPercent = remainingPercent
+    }
 }

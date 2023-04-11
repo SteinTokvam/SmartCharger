@@ -16,6 +16,8 @@ public class ValueStore {
     public static AccessToken accessToken = new AccessToken("", 0, emptyList(), "", "");
     public static boolean isSmartCharging = false;
     public static boolean smartChargingEnabled = true;
+
+    public static int initialBatteryPercent = 20;
     public static int remainingPercent = 20;
     public static int totalCapacityKwH = 10;//76;
     public static LocalDateTime finnishChargingBy = LocalDateTime.of(LocalDate.now(), LocalTime.of(7, 0));

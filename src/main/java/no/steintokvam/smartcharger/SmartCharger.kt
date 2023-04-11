@@ -82,8 +82,10 @@ class SmartCharger {
         return (totalCapacityKwH * (remainingPercent / 100f)).roundToInt()
     }
 
-    fun calculateRemainingBatteryPercent(totalCapacityKwH: Int): Int {
-        return ((easeeService.getChargerState().sessionEnergy / ValueStore.totalCapacityKwH) * 100).toInt()
+    fun calculateRemainingBatteryPercent(): Int {//må ha startsbatteriprosent. regne om til kwt og legge på sessionEnergy og finne prosenten av det
+        val initialKwt = calculateBatteryLevel(ValueStore.initialBatteryPercent, ValueStore.totalCapacityKwH)
+
+        return (((initialKwt + easeeService.getChargerState().sessionEnergy) / ValueStore.totalCapacityKwH) * 100).toInt()
     }
 
     fun startCharging(): Int {
