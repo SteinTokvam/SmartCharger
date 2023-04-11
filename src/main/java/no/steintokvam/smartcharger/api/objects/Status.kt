@@ -7,5 +7,7 @@ data class Status(
     val currentChargingSpeed: Float,
     val smartchargingEnabled: Boolean,
     val chargingThreshold: Float,
+    val totalBatterycapacity: Int,
+    val remainingPercent: Int,
     val chargingTimes: ChargingTimes
 )

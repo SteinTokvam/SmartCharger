@@ -34,7 +34,7 @@ class ChargerController {
         ValueStore.chargingThreshold = speed
     }
 
-    @PostMapping("/smartscharging/totalCapacity")
+    @PostMapping("/smartcharging/totalCapacity")
     fun setTotalCapacity(@RequestParam totalCapacity: Int) {
         ValueStore.totalCapacityKwH = totalCapacity
     }
