@@ -38,6 +38,7 @@ class EaseeService {
         val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
         val response = authCall("/accounts/login", body)
         val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
+        response.close()
         ValueStore.accessToken = accessToken
         return accessToken
     }
@@ -48,6 +49,7 @@ class EaseeService {
         val response = authCall("/accounts/refresh_token", body)
         val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
         ValueStore.accessToken = accessToken
+        response.close()
         return accessToken
     }
 
@@ -61,7 +63,9 @@ class EaseeService {
         val response = client.newCall(request).execute()
 
         val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, Charger::class.java)
-        return mapper.readValue(response.body?.charStream()?.readText(), collectionType)
+        val readValue = mapper.readValue<List<Charger>>(response.body?.charStream()?.readText(), collectionType)
+        response.close()
+        return readValue
     }
 
     fun getChargerState(): ChargerState {
