@@ -82,6 +82,10 @@ class SmartCharger {
         return (totalCapacityKwH * (remainingPercent / 100f)).roundToInt()
     }
 
+    fun calculateRemainingBatteryPercent(totalCapacityKwH: Int): Int {
+        return ((easeeService.getChargerState().sessionEnergy / ValueStore.totalCapacityKwH) * 100).toInt()
+    }
+
     fun startCharging(): Int {
         if(isCurrentlyCharging()) {
             LOGGER.warn("Tried to start charging while we already are charging.")

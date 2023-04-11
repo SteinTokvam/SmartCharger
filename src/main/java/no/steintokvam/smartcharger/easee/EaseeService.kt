@@ -13,6 +13,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -20,6 +21,7 @@ class EaseeService {
 
     private val BASE_URL = "https://api.easee.cloud/api"
     private val client = OkHttpClient()
+    private val LOGGER = LoggerFactory.getLogger(this::class.java)
 
     private val formatter = DateTimeFormatter.ISO_DATE_TIME//TODO: mapperen burde være en sentral pålass og hentes derifra
     private val dateTimeDeserializer = LocalDateTimeDeserializer(formatter)
@@ -70,10 +72,12 @@ class EaseeService {
     }
 
     fun resumeCharging(): Int {
+        LOGGER.info("Resuming charging.")
         return toggleCharging("resume_charging")
     }
 
     fun pauseCharging(): Int {
+        LOGGER.info("Pausing charging.")
         return toggleCharging("pause_charging")
     }
 

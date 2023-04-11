@@ -1,7 +1,6 @@
 package no.steintokvam.smartcharger.infra.quartz.jobs
 
 import no.steintokvam.smartcharger.SmartCharger
-import no.steintokvam.smartcharger.easee.EaseeService
 import no.steintokvam.smartcharger.electricity.ElectricityPrice
 import no.steintokvam.smartcharger.infra.ValueStore
 import no.steintokvam.smartcharger.objects.ChargingTimes
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.util.*
 
 
@@ -29,7 +27,9 @@ class GetChargingTimesJob: Job {
     }
 
     fun run(context: JobExecutionContext?) {
+        val now = LocalDateTime.now()
         if(!ValueStore.smartChargingEnabled) {
+            updateFinnishByTime(now)
             LOGGER.info("Smartcharging is not enabled.")
             return
         }
@@ -39,16 +39,20 @@ class GetChargingTimesJob: Job {
             return
         }
 
-        val now = LocalDateTime.now()
-        updateFinishByTime(now)
+        resetSmartcharging(now)
         smartCharger.updateCurrentChargingSpeed()
         if(smartCharger.isChargingFastEnough() && smartCharger.getHoursBetween(ValueStore.lastReestimate, now) > 1) {
             if(ValueStore.smartChargingSchedueled) {
                 return
             }
             getChargingTimes()
+            updateBatteryPercent()
             schedueleCharging(context)
         }
+    }
+
+    private fun updateBatteryPercent() {
+        ValueStore.remainingPercent = smartCharger.calculateRemainingBatteryPercent(ValueStore.totalCapacityKwH)
     }
 
     private fun getChargingTimes() {
@@ -107,15 +111,24 @@ class GetChargingTimesJob: Job {
         }
     }
 
-    private fun updateFinishByTime(now: LocalDateTime) {
+    private fun resetSmartcharging(now: LocalDateTime) {
         if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
             && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
             ValueStore.isSmartCharging = false
             ValueStore.smartChargingSchedueled = false
             smartCharger.startCharging()
-            //om man har passert tidspunktet til finnishedBy på den dagen man skal være ferdig, så setter man finnishedBy til samme tidspunkt neste dag
-            ValueStore.finnishChargingBy = LocalDateTime.of(now.toLocalDate().plusDays(1L), LocalTime.of(ValueStore.finnishChargingBy.hour, ValueStore.finnishChargingBy.minute))
-            LOGGER.info("isSmartCharging is set to ${ValueStore.isSmartCharging} and finnishChargingBy to ${ValueStore.finnishChargingBy}")
+            updateFinnishByTime(now)
+        }
+    }
+
+    private fun updateFinnishByTime(now: LocalDateTime) {
+        if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
+            && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
+            ValueStore.finnishChargingBy = LocalDateTime.of(
+                now.toLocalDate().plusDays(1L),
+                LocalTime.of(ValueStore.finnishChargingBy.hour, ValueStore.finnishChargingBy.minute)
+            )
+            LOGGER.info("Updated finnishChargingBy to ${ValueStore.finnishChargingBy}.")
         }
     }
 }

@@ -1,7 +1,9 @@
 package no.steintokvam.smartcharger.easee
 
+import no.steintokvam.smartcharger.easee.objects.Authentication
 import no.steintokvam.smartcharger.infra.ValueStore
 import org.junit.jupiter.api.Test
+import java.lang.Thread.sleep
 import kotlin.test.assertTrue
 
 class EaseeServiceTest {
