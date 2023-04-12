@@ -2,7 +2,10 @@ package no.steintokvam.smartcharger.api
 
 import no.steintokvam.smartcharger.SmartCharger
 import no.steintokvam.smartcharger.api.objects.ToggleSmartCharging
+import no.steintokvam.smartcharger.easee.EaseeService
+import no.steintokvam.smartcharger.easee.objects.AccessToken
 import no.steintokvam.smartcharger.infra.ValueStore
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -43,5 +46,10 @@ class ChargerController {
     fun setRemainingPercent(@RequestParam remainingPercent: Int) {
         ValueStore.initialBatteryPercent = remainingPercent
         ValueStore.remainingPercent = remainingPercent
+    }
+
+    @GetMapping("/test/refresh")
+    fun getNewAccessToken(): AccessToken {
+        return EaseeService().refreshToken()
     }
 }
