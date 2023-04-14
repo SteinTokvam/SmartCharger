@@ -68,6 +68,10 @@ class EaseeService {
     fun getChargerId(): List<Charger> {
         val request = createGetRequest("/chargers")
         val response = client.newCall(request).execute()
+        if(response.code != 200) {
+            //dummy response med rett id
+            return listOf(Charger("EHE6ZQU7", "name", 1, "createdOn", "updatedOn", 1, 1))
+        }
 
         val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, Charger::class.java)
         val readValue = mapper.readValue<List<Charger>>(response.body?.charStream()?.readText(), collectionType)
