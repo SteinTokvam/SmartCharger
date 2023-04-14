@@ -19,11 +19,11 @@ public class ValueStore {
 
     public static int initialBatteryPercent = 20;
     public static int remainingPercent = 20;
-    public static int totalCapacityKwH = 10;//76;
+    public static int totalCapacityKwH = 76;
     public static LocalDateTime finnishChargingBy = LocalDateTime.of(LocalDate.now(), LocalTime.of(7, 0));
     public static float currentChargingSpeed = 0f;
 
-    public static float chargingThreshold = 1f;
+    public static float chargingThreshold = 4f;
 
     public static boolean smartChargingSchedueled = false;
 
