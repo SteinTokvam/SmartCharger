@@ -14,6 +14,7 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.slf4j.LoggerFactory
+import java.net.SocketTimeoutException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -67,16 +68,22 @@ class EaseeService {
 
     fun getChargerId(): List<Charger> {
         val request = createGetRequest("/chargers")
-        val response = client.newCall(request).execute()
-        if(response.code != 200) {
-            //dummy response med rett id
-            return listOf(Charger("EHE6ZQU7", "name", 1, "createdOn", "updatedOn", 1, 1))
-        }
+        try {
+            val response = client.newCall(request).execute()
+            if(response.code != 200) {
+                //dummy response med rett id
+                return listOf(Charger("EHE6ZQU7", "name", 1, "createdOn", "updatedOn", 1, 1))
+            }
 
-        val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, Charger::class.java)
-        val readValue = mapper.readValue<List<Charger>>(response.body?.charStream()?.readText(), collectionType)
-        response.close()
-        return readValue
+            val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, Charger::class.java)
+            val readValue = mapper.readValue<List<Charger>>(response.body?.charStream()?.readText(), collectionType)
+            response.close()
+            return readValue
+        } catch (e: SocketTimeoutException) {
+            LOGGER.error("Timeout against easee servers.")
+        }
+        //dummy response med rett id
+        return listOf(Charger("EHE6ZQU7", "name", 1, "createdOn", "updatedOn", 1, 1))
     }
 
     fun getChargerState(): ChargerState {
