@@ -89,7 +89,7 @@ class GetChargingTimesJob: Job {
         if(schedueler is Scheduler && ValueStore.chargingTimes.prices.isNotEmpty()) {
 
             val trigger = TriggerBuilder.newTrigger()
-                .withIdentity("startCharging", "chargingGroup")
+                .withIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString())
                 .startAt(Date.from(ValueStore.chargingTimes.prices[0].time_start.atZone(ZoneId.systemDefault()).toInstant()))
                 .build()
             val jobDetail = JobBuilder.newJob(StartChargingJob::class.java)
