@@ -40,23 +40,20 @@ class EaseeService {
         val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
         response.close()
         ValueStore.accessToken = accessToken
-        LOGGER.info(mapper.writeValueAsString(ValueStore.accessToken))
         return accessToken
     }
 
     fun refreshToken(): AccessToken {
         val auth = mapper.writeValueAsString(RefreshToken(ValueStore.accessToken.accessToken, ValueStore.accessToken.refreshToken))
         val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
-        LOGGER.info(auth)
         val response = authCall("/accounts/refresh_token", body)
+
         if(response.code != 200) {
             LOGGER.error("HTTP isn't 200. It is ${response.code}")
-            LOGGER.error("ValueStore.accessToken is ${ValueStore.accessToken}")
         } else {
 
             val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
             ValueStore.accessToken = accessToken
-            LOGGER.info(mapper.writeValueAsString(ValueStore.accessToken))
             response.close()
             return accessToken
         }

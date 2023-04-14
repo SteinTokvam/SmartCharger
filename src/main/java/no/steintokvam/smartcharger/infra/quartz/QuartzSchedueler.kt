@@ -39,7 +39,7 @@ class QuartzSchedueler {
     private fun createAuthenticationJobTrigger(): Trigger {
         return newTrigger()
             .withIdentity("startCharging", "chargingGroup")
-            .startAt(Date.from(LocalDateTime.of(LocalDate.now(), LocalTime.now().plusMinutes(1)).atZone(ZoneId.systemDefault()).toInstant()))
+            .startAt(Date.from(LocalDateTime.of(LocalDate.now(), LocalTime.of(23,0)).atZone(ZoneId.systemDefault()).toInstant()))
             .withSchedule(simpleSchedule()
                 .withIntervalInHours(23)
                 .repeatForever())
