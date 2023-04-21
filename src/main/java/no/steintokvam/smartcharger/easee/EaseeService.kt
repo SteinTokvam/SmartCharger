@@ -66,29 +66,8 @@ class EaseeService {
         return client.newCall(request).execute()
     }
 
-    fun getChargerId(): List<Charger> {
-        val request = createGetRequest("/chargers")
-        try {
-            val response = client.newCall(request).execute()
-            if(response.code != 200) {
-                //dummy response med rett id
-                return listOf(Charger("EHE6ZQU7", "name", 1, "createdOn", "updatedOn", 1, 1))
-            }
-
-            val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, Charger::class.java)
-            val readValue = mapper.readValue<List<Charger>>(response.body?.charStream()?.readText(), collectionType)
-            response.close()
-            return readValue
-        } catch (e: SocketTimeoutException) {
-            LOGGER.error("Timeout against easee servers.")
-        }
-        //dummy response med rett id
-        return listOf(Charger("EHE6ZQU7", "name", 1, "createdOn", "updatedOn", 1, 1))
-    }
-
     fun getChargerState(): ChargerState {
-        val chargerID = getChargerId()[0].id
-        val request = createGetRequest("/chargers/$chargerID/state")
+        val request = createGetRequest("/chargers/${ValueStore.chargerID}/state")
         val response = client.newCall(request).execute()
         return mapper.readValue(response.body?.charStream()?.readText(), ChargerState::class.java)
     }
@@ -104,9 +83,9 @@ class EaseeService {
     }
 
     private fun toggleCharging(command: String): Int {
-        val chargerId = getChargerId()[0].id
+
         val body: RequestBody = "".toRequestBody("Application/json".toMediaType())
-        val request = createPostRequest("/chargers/$chargerId/commands/$command", body)
+        val request = createPostRequest("/chargers/${ValueStore.chargerID}/commands/$command", body)
         val response = client.newCall(request).execute()
         if(response.isSuccessful) {
             return response.code
