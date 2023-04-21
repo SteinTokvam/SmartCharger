@@ -87,20 +87,23 @@ class GetChargingTimesJob: Job {
 
         val schedueler = dataMap["schedueler"]
         if(schedueler is Scheduler && ValueStore.chargingTimes.prices.isNotEmpty()) {
-
-            val trigger = TriggerBuilder.newTrigger()
-                .withIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString())
-                .startAt(Date.from(ValueStore.chargingTimes.prices[0].time_start.atZone(ZoneId.systemDefault()).toInstant()))
-                .build()
-            val jobDetail = JobBuilder.newJob(StartChargingJob::class.java)
-                .withIdentity("startChargingJob", "chargingGroup")
-                .build()
-            schedueler.scheduleJob(jobDetail, trigger)//starter å lade ved første ladetid
-            LOGGER.info("Smartcharging schedueled to start at ${trigger.nextFireTime}")
-            ValueStore.smartChargingSchedueled = true
-            smartCharger.stopCharging()
+            if(ValueStore.chargingTimes.prices[0].time_start.isAfter(LocalDateTime.now())) {
+                val trigger = TriggerBuilder.newTrigger()
+                    .withIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+                    .startAt(Date.from(ValueStore.chargingTimes.prices[0].time_start.atZone(ZoneId.systemDefault()).toInstant()))
+                    .build()
+                val jobDetail = JobBuilder.newJob(StartChargingJob::class.java)
+                    .withIdentity("startChargingJob", "chargingGroup")
+                    .build()
+                schedueler.scheduleJob(jobDetail, trigger)//starter å lade ved første ladetid
+                LOGGER.info("Smartcharging scheduled to start at ${trigger.nextFireTime}")
+                ValueStore.smartChargingSchedueled = true
+                smartCharger.stopCharging()
+            } else {
+                LOGGER.info("Start time has already been. Continuing charge.")
+            }
         } else {
-            LOGGER.error("Schedueler not sent to schedueler variable! got ${schedueler!!::class.java}. Can't start charging.")
+            LOGGER.error("Scheduler not sent to scheduler variable! got ${schedueler!!::class.java}. Can't start charging.")
         }
     }
 
