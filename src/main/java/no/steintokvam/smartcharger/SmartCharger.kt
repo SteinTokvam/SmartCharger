@@ -29,7 +29,7 @@ class SmartCharger {
         ValueStore.currentChargingSpeed = chargerState.totalPower
     }
 
-    private fun getLowestPrices(
+    private fun getLowestPrices(//TODO: må hente priser fra powerprice api
         date: LocalDateTime,
         estimatedChargingTime: Int
     ) : List<ElectricityPrice> {

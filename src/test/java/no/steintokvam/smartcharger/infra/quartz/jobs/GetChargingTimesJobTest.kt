@@ -1,7 +1,6 @@
 package no.steintokvam.smartcharger.infra.quartz.jobs
 
 
-import no.steintokvam.smartcharger.electricity.PriceService
 import no.steintokvam.smartcharger.infra.ValueStore
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -12,7 +11,7 @@ import java.time.LocalTime
 class GetChargingTimesJobTest() {
     @Test
     fun testGetChargingTimeJob() {//TODO: må mocke at det lades
-        ValueStore.prices = PriceService().getPrices("NO1", LocalDate.now())
+        //ValueStore.prices = PriceService().getPrices("NO1", LocalDate.now())
         //GetChargingTimesJob().run(null)
 /*
 

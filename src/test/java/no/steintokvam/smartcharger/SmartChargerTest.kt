@@ -1,8 +1,6 @@
 package no.steintokvam.smartcharger
 
-import no.steintokvam.smartcharger.electricity.PriceService
 import no.steintokvam.smartcharger.infra.ValueStore
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -65,7 +63,7 @@ class SmartChargerTest {
 
     @Test
     fun testGetNoPricesIfChargingTakesTooLong() {
-        ValueStore.prices = PriceService().getPrices("NO1", LocalDate.now())
+        ValueStore.prices = emptyList()
         ValueStore.currentChargingSpeed = 1f
         val tmpChargingTimes = smartCharger.getChargingTimes(
             ValueStore.remainingPercent,
@@ -77,8 +75,8 @@ class SmartChargerTest {
     }
 
     @Test
-    fun testGetPricesIfCanBeChargedInTime() {
-        ValueStore.prices = PriceService().getPrices("NO1", LocalDate.now())
+    fun testGetPricesIfCanBeChargedInTime() {//TODO: må reimplementeres
+        //ValueStore.prices = PriceService().getPrices("NO1", LocalDate.now())
         ValueStore.finnishChargingBy = LocalDateTime.now().plusHours(20)
         ValueStore.currentChargingSpeed = 20f
         val tmpChargingTimes = smartCharger.getChargingTimes(
