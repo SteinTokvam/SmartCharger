@@ -2,7 +2,6 @@ package no.steintokvam.smartcharger.infra.quartz
 
 import no.steintokvam.smartcharger.infra.quartz.jobs.AuthenticationJob
 import no.steintokvam.smartcharger.infra.quartz.jobs.GetChargingTimesJob
-import no.steintokvam.smartcharger.infra.quartz.jobs.GetPricesJob
 import org.quartz.*
 import org.quartz.SimpleScheduleBuilder.simpleSchedule
 import org.quartz.TriggerBuilder.newTrigger
@@ -26,7 +25,6 @@ class QuartzSchedueler {
         val schedueler: Scheduler = scheduelerFactory.scheduler
         schedueler.start()
 
-        scheduleJob(createPriceJobTrigger(), createPriceJobDetail(), schedueler)
         scheduleJob(createGetChargingTimesJobTrigger(), createGetChargingTimesJobDetail(schedueler), schedueler)
         scheduleJob(createAuthenticationJobTrigger(), createAuthenticationJobDetail(), schedueler)
     }
@@ -62,16 +60,5 @@ class QuartzSchedueler {
             .withIdentity("createGetChargingTimesJob", "createGetChargingTimesGroup")
             .setJobData(JobDataMap(mutableMapOf(Pair("schedueler", schedueler))))
             .build()
-    }
-
-    private fun createPriceJobTrigger(): Trigger {
-        return newTrigger()
-            .withIdentity("getPriceTrigger", "getPriceTrigger")
-            .withSchedule(CronScheduleBuilder.cronSchedule("0 15 14 ? * * *"))//At 14:15:00pm every day
-            .build()
-    }
-
-    private fun createPriceJobDetail(): JobDetail {
-        return JobBuilder.newJob(GetPricesJob::class.java).withIdentity("createPriceJob", "createPriceGroup").build()
     }
 }

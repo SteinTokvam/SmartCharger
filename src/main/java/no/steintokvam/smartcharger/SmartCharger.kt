@@ -1,5 +1,6 @@
 package no.steintokvam.smartcharger
 
+import no.steintokvam.smartcharger.api.power.PowerApiService
 import no.steintokvam.smartcharger.easee.EaseeService
 import no.steintokvam.smartcharger.electricity.ElectricityPrice
 import no.steintokvam.smartcharger.infra.ValueStore
@@ -29,32 +30,6 @@ class SmartCharger {
         ValueStore.currentChargingSpeed = chargerState.totalPower
     }
 
-    private fun getLowestPrices(
-        date: LocalDateTime,
-        estimatedChargingTime: Int
-    ) : List<ElectricityPrice> {
-        val allPrices = ValueStore.prices
-
-        if(getHoursBetween(date, ValueStore.finnishChargingBy) < estimatedChargingTime || allPrices.isEmpty()) {
-            //tar lengre tid å lade enn man har til den er ferdig aka må kjøre på eller man har ingen priser
-            return emptyList()
-        }
-
-        val sortedPrices = allPrices
-            .filter { it.time_start.isAfter(date) || it.time_start.hour == date.hour }
-            .filter { it.time_start.isBefore(ValueStore.finnishChargingBy) }
-            .sortedBy { it.NOK_per_kWh }
-
-        if(sortedPrices.size < estimatedChargingTime) {
-            LOGGER.error("Has ${sortedPrices.size} prices, but expected to have at least $estimatedChargingTime prices.")
-            LOGGER.info("Has ${allPrices.size} unfiltered prices. Finnish charging by is: ${ValueStore.finnishChargingBy}")
-            LOGGER.info("All prices:")
-            allPrices.forEach { LOGGER.info("${it.time_start}") }
-            return sortedPrices
-        }
-        return sortedPrices
-            .subList(0, estimatedChargingTime)
-    }
 
     fun getChargingTimes(remainingPercent: Int, totalCapacityKwH: Int, finishChargingBy: LocalDateTime): ChargingTimes {
         val currentBatteryLevel = calculateBatteryLevel(remainingPercent, totalCapacityKwH)
@@ -62,7 +37,7 @@ class SmartCharger {
         //dette er et desimaltall i antall timer
         val estimatedChargeTime = (kwhLeftToCharge / ValueStore.currentChargingSpeed).roundToInt()
 
-        val lowestPrices = getLowestPrices(
+        val lowestPrices = PowerApiService().getPricesFor(
             LocalDateTime.now(),
             estimatedChargeTime
         )

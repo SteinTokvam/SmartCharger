@@ -1,7 +1,6 @@
 package no.steintokvam.smartcharger;
 
 import no.steintokvam.smartcharger.easee.EaseeService;
-import no.steintokvam.smartcharger.electricity.PriceService;
 import no.steintokvam.smartcharger.infra.ValueStore;
 import no.steintokvam.smartcharger.infra.quartz.QuartzSchedueler;
 import org.slf4j.Logger;
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.time.LocalDate;
 
 @SpringBootApplication
 public class SmartChargerApplication {
@@ -17,6 +15,12 @@ public class SmartChargerApplication {
 	public static void main(String[] args) {
 		Logger LOGGER = LoggerFactory.getLogger(SmartChargerApplication.class);
 		SpringApplication.run(SmartChargerApplication.class, args);
+		ValueStore.powerPriceURL = System.getenv("powerApiURL");
+		if(ValueStore.powerPriceURL.isEmpty()) {
+			LOGGER.error("Has no url for electricity prices.");
+			return;
+		}
+		LOGGER.info("Got " + ValueStore.powerPriceURL + " to get electricityPrices.");
 		ValueStore.chargerID = System.getenv("chargerID");
 		if(ValueStore.chargerID == null || ValueStore.chargerID.isEmpty()) {
 			LOGGER.error("Charger ID not set. exiting.");
@@ -31,7 +35,6 @@ public class SmartChargerApplication {
 		}
 		ValueStore.accessToken = new EaseeService().authenticate(user, passwd);
 		LOGGER.info("Authenticated against Easee servers.");
-		ValueStore.prices = new PriceService().getPrices(ValueStore.zone, LocalDate.now());
 		new QuartzSchedueler().schedueleJobs();
 	}
 }

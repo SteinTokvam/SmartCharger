@@ -70,7 +70,7 @@ class GetChargingTimesJob: Job {
                 }
 
                 val lastPrice = prices[prices.size - 1]
-                val tmpPrice = ElectricityPrice(lastPrice.NOK_per_kWh, lastPrice.EUR_per_kWh, lastPrice.EXR, lastPrice.time_start, chargeElement.time_end)
+                val tmpPrice = ElectricityPrice(lastPrice.NOK_per_kWh, lastPrice.eur_per_kWh, lastPrice.exr, lastPrice.time_start, chargeElement.time_end)
                 prices.removeAt(prices.size-1)
                 prices.add(tmpPrice)
                 lastStartTime = chargeElement.time_start
