@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
 
 @RestController
 class ChargerController {
+
+    private val smartCharger = SmartCharger()
 
     @PostMapping("/smartcharging/on")
     fun turnOnSmartcharging(): ToggleSmartCharging {
@@ -19,7 +22,7 @@ class ChargerController {
             return ToggleSmartCharging(gotToggled = false, alreadyWasToggled = true)
         }
         ValueStore.smartChargingEnabled = true
-        SmartCharger().startCharging()
+        smartCharger.resetSmartcharging(LocalDateTime.now())
         return ToggleSmartCharging(gotToggled = true, alreadyWasToggled = false)
     }
     @PostMapping("/smartcharging/off")
@@ -28,7 +31,7 @@ class ChargerController {
             return ToggleSmartCharging(gotToggled = false, alreadyWasToggled = true)
         }
         ValueStore.smartChargingEnabled = false
-        SmartCharger().startCharging()
+        smartCharger.resetSmartcharging(LocalDateTime.now())
         return ToggleSmartCharging(gotToggled = true, alreadyWasToggled = false)
     }
 

@@ -4,14 +4,10 @@ import no.steintokvam.smartcharger.SmartCharger
 import no.steintokvam.smartcharger.electricity.ElectricityPrice
 import no.steintokvam.smartcharger.infra.ValueStore
 import no.steintokvam.smartcharger.objects.ChargingTimes
-import org.quartz.Job
-import org.quartz.JobBuilder
-import org.quartz.JobDataMap
-import org.quartz.JobExecutionContext
-import org.quartz.Scheduler
-import org.quartz.TriggerBuilder
+import org.quartz.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
@@ -29,7 +25,7 @@ class GetChargingTimesJob: Job {
     fun run(context: JobExecutionContext?) {
         val now = LocalDateTime.now()
         if(!ValueStore.smartChargingEnabled) {
-            updateFinnishByTime(now)
+            smartCharger.updateFinnishByTime(now)
             LOGGER.info("Smartcharging is not enabled.")
             return
         }
@@ -39,7 +35,7 @@ class GetChargingTimesJob: Job {
             return
         }
 
-        resetSmartcharging(now)
+        smartCharger.updateFinnishByTime(LocalDateTime.now())
         smartCharger.updateCurrentChargingSpeed()
         if(smartCharger.isChargingFastEnough() && smartCharger.getHoursBetween(ValueStore.lastReestimate, now) > 1) {
             if(ValueStore.smartChargingSchedueled) {
@@ -82,24 +78,38 @@ class GetChargingTimesJob: Job {
         val dataMap: JobDataMap = context!!.jobDetail.jobDataMap
 
         val schedueler = dataMap["schedueler"]
-        if(schedueler is Scheduler && ValueStore.chargingTimes.prices.isNotEmpty()) {
-            if(ValueStore.chargingTimes.prices[0].time_start.isAfter(LocalDateTime.now())) {
-                val trigger = TriggerBuilder.newTrigger()
-                    .withIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString())
-                    .startAt(Date.from(ValueStore.chargingTimes.prices[0].time_start.atZone(ZoneId.systemDefault()).toInstant()))
-                    .build()
-                val jobDetail = JobBuilder.newJob(StartChargingJob::class.java)
-                    .withIdentity("startChargingJob", "chargingGroup")
-                    .build()
-                schedueler.scheduleJob(jobDetail, trigger)//starter å lade ved første ladetid
-                LOGGER.info("Smartcharging scheduled to start at ${trigger.nextFireTime}")
-                ValueStore.smartChargingSchedueled = true
-                smartCharger.stopCharging()
-            } else {
-                LOGGER.info("Start time has already been. Continuing charge.")
+
+        if(schedueler is Scheduler) {
+            val jobName = "startChargingJob"
+            val jobGroup = "chargingGroup"
+            if (!ValueStore.smartChargingEnabled) {
+                schedueler.deleteJob(JobKey(jobName, jobGroup))
+                LOGGER.info("Deleted scheduled charging jobs.")
+                LOGGER.info("Currently scheduled jobs are: ${schedueler.jobGroupNames}")
             }
-        } else {
-            LOGGER.error("Scheduler not sent to scheduler variable! got ${schedueler!!::class.java}. Can't start charging.")
+            if (ValueStore.chargingTimes.prices.isNotEmpty()) {
+                if (ValueStore.chargingTimes.prices[0].time_start.isAfter(LocalDateTime.now())) {
+                    val trigger = TriggerBuilder.newTrigger()
+                        .withIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+                        .startAt(
+                            Date.from(
+                                ValueStore.chargingTimes.prices[0].time_start.atZone(ZoneId.systemDefault()).toInstant()
+                            )
+                        )
+                        .build()
+                    val jobDetail = JobBuilder.newJob(StartChargingJob::class.java)
+                        .withIdentity(jobName, jobGroup)
+                        .build()
+                    schedueler.scheduleJob(jobDetail, trigger)//starter å lade ved første ladetid
+                    LOGGER.info("Smartcharging scheduled to start at ${trigger.nextFireTime}")
+                    ValueStore.smartChargingSchedueled = true
+                    smartCharger.stopCharging()
+                } else {
+                    LOGGER.info("Start time has already been. Continuing charge.")
+                }
+            } else {
+                LOGGER.error("Scheduler not sent to scheduler variable! got ${schedueler!!::class.java}. Can't start charging.")
+            }
         }
     }
 
@@ -107,27 +117,6 @@ class GetChargingTimesJob: Job {
         LOGGER.info("Reestimated prices.")
         ValueStore.chargingTimes.prices.forEach {
             LOGGER.info("Price: ${it.NOK_per_kWh} time_start: ${it.time_start} time_end: ${it.time_end}")
-        }
-    }
-
-    private fun resetSmartcharging(now: LocalDateTime) {
-        if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
-            && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
-            ValueStore.isSmartCharging = false
-            ValueStore.smartChargingSchedueled = false
-            smartCharger.startCharging()
-            updateFinnishByTime(now)
-        }
-    }
-
-    private fun updateFinnishByTime(now: LocalDateTime) {
-        if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
-            && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
-            ValueStore.finnishChargingBy = LocalDateTime.of(
-                now.toLocalDate().plusDays(1L),
-                LocalTime.of(ValueStore.finnishChargingBy.hour, ValueStore.finnishChargingBy.minute)
-            )
-            LOGGER.info("Updated finnishChargingBy to ${ValueStore.finnishChargingBy}.")
         }
     }
 }

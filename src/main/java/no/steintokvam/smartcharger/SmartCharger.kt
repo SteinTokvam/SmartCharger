@@ -7,7 +7,9 @@ import no.steintokvam.smartcharger.infra.ValueStore
 import no.steintokvam.smartcharger.objects.ChargingTimes
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
@@ -76,6 +78,27 @@ class SmartCharger {
             ValueStore.remainingPercent = (((initialKwt + chargerState.sessionEnergy) / ValueStore.totalCapacityKwH) * 100).toInt()
         }
         LOGGER.warn("Couldn't calculate remaining batteryPercent since we couldn't retrieve this charge session energy usage from Easee.")
+    }
+
+    fun resetSmartcharging(now: LocalDateTime) {
+        ValueStore.isSmartCharging = false
+        ValueStore.smartChargingSchedueled = false
+        startCharging()
+        if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
+            && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
+            updateFinnishByTime(now)
+        }
+    }
+
+    fun updateFinnishByTime(now: LocalDateTime) {
+        if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
+            && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
+            ValueStore.finnishChargingBy = LocalDateTime.of(
+                LocalDate.now().plusDays(1L),
+                LocalTime.of(ValueStore.finnishChargingBy.hour, ValueStore.finnishChargingBy.minute)
+            )
+            LOGGER.info("Updated finnishChargingBy to ${ValueStore.finnishChargingBy}.")
+        }
     }
 
     fun startCharging(): Int {
