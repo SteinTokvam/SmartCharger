@@ -54,10 +54,10 @@ class PowerApiService {
         return emptyList()
     }
 
-    fun getPricesFor(from: LocalDateTime, hours: Int):List<ElectricityPrice> {
+    fun getPricesFor(from: LocalDateTime, hours: Int, to: LocalDateTime):List<ElectricityPrice> {
         var response: Response? = null
         try {
-            val request = createGetRequest("/prices/cheapest/$from/$hours")
+            val request = createGetRequest("/prices/cheapest/$from/$hours/$to")
             response = client.newCall(request).execute()
             val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, ElectricityPrice::class.java)
             val prices =
@@ -66,7 +66,7 @@ class PowerApiService {
             response.close()
             return prices
         } catch (e: Exception) {
-            LOGGER.warn("Couldn't get the lowest $hours prices for zone ${ValueStore.zone} starting from $from")
+            LOGGER.warn("Couldn't get the lowest $hours prices for zone ${ValueStore.zone} for time $from-$to")
         } finally {
             response?.close()
         }

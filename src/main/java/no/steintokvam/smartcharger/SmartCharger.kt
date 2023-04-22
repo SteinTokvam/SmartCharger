@@ -52,7 +52,8 @@ class SmartCharger {
 
         val lowestPrices = PowerApiService().getPricesFor(
             LocalDateTime.now(),
-            estimatedChargeTime
+            estimatedChargeTime,
+            ValueStore.finnishChargingBy
         )
 
         if(lowestPrices.isEmpty()) {
