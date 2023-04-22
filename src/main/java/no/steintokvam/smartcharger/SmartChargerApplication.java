@@ -22,7 +22,7 @@ public class SmartChargerApplication {
 		}
 		LOGGER.info("Got " + ValueStore.powerPriceURL + " to get electricityPrices.");
 		ValueStore.chargerID = System.getenv("chargerID") == null ? "" : System.getenv("chargerID");
-		if(ValueStore.chargerID == null || ValueStore.chargerID.isEmpty()) {
+		if(ValueStore.chargerID.isEmpty()) {
 			LOGGER.error("Charger ID not set. exiting.");
 			return;
 		}
