@@ -51,30 +51,6 @@ class SmartChargerTest {
     }
 
     @Test
-    fun testGetNoPricesIfNoneAreAvailable() {
-        ValueStore.prices = emptyList()
-        val tmpChargingTimes = smartCharger.getChargingTimes(
-            ValueStore.remainingPercent,
-            ValueStore.totalCapacityKwH,
-            ValueStore.finnishChargingBy
-        )
-        assertTrue(tmpChargingTimes.prices.isEmpty())
-    }
-
-    @Test
-    fun testGetNoPricesIfChargingTakesTooLong() {
-        ValueStore.prices = emptyList()
-        ValueStore.currentChargingSpeed = 1f
-        val tmpChargingTimes = smartCharger.getChargingTimes(
-            ValueStore.remainingPercent,
-            ValueStore.totalCapacityKwH,
-            ValueStore.finnishChargingBy
-        )
-        tmpChargingTimes.prices.sortedBy { it.time_start }
-        //assertTrue(tmpChargingTimes.prices.isEmpty())
-    }
-
-    @Test
     fun testGetPricesIfCanBeChargedInTime() {//TODO: må reimplementeres
         //ValueStore.prices = PriceService().getPrices("NO1", LocalDate.now())
         ValueStore.finnishChargingBy = LocalDateTime.now().plusHours(20)

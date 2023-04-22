@@ -29,11 +29,6 @@ class GetChargingTimesJob: Job {
             LOGGER.info("Smartcharging is not enabled.")
             return
         }
-        if(ValueStore.prices.isEmpty()) {
-            //if no prices then we do not need to get the times to charge
-            LOGGER.warn("Got no prices!")
-            return
-        }
 
         smartCharger.updateFinnishByTime(LocalDateTime.now())
         smartCharger.updateCurrentChargingSpeed()

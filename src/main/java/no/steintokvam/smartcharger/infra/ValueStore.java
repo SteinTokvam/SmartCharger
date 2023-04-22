@@ -30,7 +30,6 @@ public class ValueStore {
     public static LocalDateTime lastReestimate = LocalDateTime.now().minusDays(1L);
     public static ChargingTimes chargingTimes = new ChargingTimes(emptyList(), 0, 0, finnishChargingBy);
 
-    public static List<ElectricityPrice> prices = emptyList();
     public static String zone = "NO1";
     public static String chargerID = "EHE6ZQU7";
 
