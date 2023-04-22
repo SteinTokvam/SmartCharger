@@ -15,6 +15,12 @@ public class SmartChargerApplication {
 	public static void main(String[] args) {
 		Logger LOGGER = LoggerFactory.getLogger(SmartChargerApplication.class);
 		SpringApplication.run(SmartChargerApplication.class, args);
+		ValueStore.powerPriceURL = System.getenv("powerApiURL");
+		if(ValueStore.powerPriceURL.isEmpty()) {
+			LOGGER.error("Has no url for electricity prices.");
+			return;
+		}
+		LOGGER.info("Got " + ValueStore.powerPriceURL + " to get electricityPrices.");
 		ValueStore.chargerID = System.getenv("chargerID");
 		if(ValueStore.chargerID == null || ValueStore.chargerID.isEmpty()) {
 			LOGGER.error("Charger ID not set. exiting.");

@@ -33,4 +33,6 @@ public class ValueStore {
     public static List<ElectricityPrice> prices = emptyList();
     public static String zone = "NO1";
     public static String chargerID = "EHE6ZQU7";
+
+    public static String powerPriceURL = "";
 }
