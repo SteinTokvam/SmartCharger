@@ -14,9 +14,9 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.slf4j.LoggerFactory
-import java.net.SocketTimeoutException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.Exception
 
 class EaseeService {
 
@@ -35,30 +35,45 @@ class EaseeService {
         .registerModule(javaTimeModule)
 
     fun authenticate(user: String, password: String): AccessToken {
-        val auth = mapper.writeValueAsString(Authentication(user, password))
-        val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
-        val response = authCall("/accounts/login", body)
-        val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
-        response.close()
-        ValueStore.accessToken = accessToken
-        return accessToken
-    }
+        var response: Response? = null
 
-    fun refreshToken(): AccessToken {
-        val auth = mapper.writeValueAsString(RefreshToken(ValueStore.accessToken.accessToken, ValueStore.accessToken.refreshToken))
-        val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
-        val response = authCall("/accounts/refresh_token", body)
-
-        if(response.code != 200) {
-            LOGGER.error("HTTP isn't 200. It is ${response.code}")
-        } else {
-
+        try {
+            val auth = mapper.writeValueAsString(Authentication(user, password))
+            val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
+            response = authCall("/accounts/login", body)
             val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
+            response.close()
             ValueStore.accessToken = accessToken
             response.close()
             return accessToken
+        } catch (e: Exception) {
+            LOGGER.error("Couldn't authenticate againt Easee servers to get a access token.")
+            LOGGER.error(e.toString())
+        } finally {
+            response?.close()
         }
-        return ValueStore.accessToken
+        return AccessToken("", 0, emptyList(), "Bearer", "")
+    }
+
+    fun refreshToken() {
+        val auth = mapper.writeValueAsString(RefreshToken(ValueStore.accessToken.accessToken, ValueStore.accessToken.refreshToken))
+        val body: RequestBody = auth.toRequestBody("Application/json".toMediaType())
+        var response: Response? = null
+        try {
+            response = authCall("/accounts/refresh_token", body)
+            if (response.code != 200) {
+                LOGGER.error("HTTP isn't 200. It is ${response.code}")
+            } else {
+                val accessToken = mapper.readValue(response.body?.charStream()?.readText(), AccessToken::class.java)
+                ValueStore.accessToken = accessToken
+                response.close()
+            }
+        } catch (e: Exception) {
+            LOGGER.error("Couldn't refresh access token.")
+            LOGGER.error(e.toString())
+        } finally {
+            response?.close()
+        }
     }
 
     private fun authCall(endpoint: String, body: RequestBody): Response {
@@ -66,10 +81,21 @@ class EaseeService {
         return client.newCall(request).execute()
     }
 
-    fun getChargerState(): ChargerState {
+    fun getChargerState(): ChargerState? {
         val request = createGetRequest("/chargers/${ValueStore.chargerID}/state")
-        val response = client.newCall(request).execute()
-        return mapper.readValue(response.body?.charStream()?.readText(), ChargerState::class.java)
+        var response: Response? = null
+        try {
+            response = client.newCall(request).execute()
+            val chargerState = mapper.readValue(response.body?.charStream()?.readText(), ChargerState::class.java)
+            response.close()
+            return chargerState
+        } catch (e: Exception) {
+            LOGGER.error("Couldn't get charger state.")
+            LOGGER.error(e.toString())
+        } finally {
+            response?.close()
+        }
+        return null
     }
 
     fun resumeCharging(): Int {
@@ -86,11 +112,22 @@ class EaseeService {
 
         val body: RequestBody = "".toRequestBody("Application/json".toMediaType())
         val request = createPostRequest("/chargers/${ValueStore.chargerID}/commands/$command", body)
-        val response = client.newCall(request).execute()
-        if(response.isSuccessful) {
-            return response.code
+        var response: Response? = null
+        try {
+            response = client.newCall(request).execute()
+            val httpCode = response.code
+            response.close()
+            if(response.isSuccessful) {
+                return httpCode
+            }
+            return httpCode
+        } catch (e: Exception) {
+            LOGGER.error("Couldn't $command.")
+            LOGGER.error(e.toString())
+        } finally {
+            response?.close()
         }
-        return response.code
+        return 400
     }
 
     private fun createGetRequest(endpoint: String): Request {

@@ -46,13 +46,9 @@ class GetChargingTimesJob: Job {
                 return
             }
             getChargingTimes()
-            updateBatteryPercent()
+            smartCharger.calculateRemainingBatteryPercent()
             schedueleCharging(context)
         }
-    }
-
-    private fun updateBatteryPercent() {
-        ValueStore.remainingPercent = smartCharger.calculateRemainingBatteryPercent()
     }
 
     private fun getChargingTimes() {

@@ -50,6 +50,7 @@ class ChargerController {
 
     @GetMapping("/test/refresh")
     fun getNewAccessToken(): AccessToken {//TODO: fjern denne om refresh token nå funker
-        return EaseeService().refreshToken()
+        EaseeService().refreshToken()
+        return ValueStore.accessToken
     }
 }

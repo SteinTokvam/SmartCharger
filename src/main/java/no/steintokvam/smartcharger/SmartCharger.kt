@@ -17,17 +17,28 @@ class SmartCharger {
     private val easeeService = EaseeService()
 
     fun isChargingFastEnough(): Boolean {
-        return easeeService.getChargerState().totalPower > ValueStore.chargingThreshold
+        val chargerState = easeeService.getChargerState()
+        if(chargerState != null) {
+            return chargerState.totalPower > ValueStore.chargingThreshold
+        }
+        return false
     }
 
     private fun isCurrentlyCharging(): Boolean {
         val chargerState = easeeService.getChargerState()
-        return chargerState.totalPower > 0f
+        if(chargerState != null) {
+            return chargerState.totalPower > 0f
+        }
+        return false
     }
 
     fun updateCurrentChargingSpeed() {
         val chargerState = easeeService.getChargerState()
-        ValueStore.currentChargingSpeed = chargerState.totalPower
+        if(chargerState != null) {
+            ValueStore.currentChargingSpeed = chargerState.totalPower
+        } else {
+            LOGGER.warn("Couldn't update current charging speed since charger state couldn't be retrieved.")
+        }
     }
 
 
@@ -57,10 +68,14 @@ class SmartCharger {
         return (totalCapacityKwH * (remainingPercent / 100f)).roundToInt()
     }
 
-    fun calculateRemainingBatteryPercent(): Int {//må ha startsbatteriprosent. regne om til kwt og legge på sessionEnergy og finne prosenten av det
+    fun calculateRemainingBatteryPercent() {//må ha startsbatteriprosent. regne om til kwt og legge på sessionEnergy og finne prosenten av det
         val initialKwt = calculateBatteryLevel(ValueStore.initialBatteryPercent, ValueStore.totalCapacityKwH)
 
-        return (((initialKwt + easeeService.getChargerState().sessionEnergy) / ValueStore.totalCapacityKwH) * 100).toInt()
+        val chargerState = easeeService.getChargerState()
+        if(chargerState != null) {
+            ValueStore.remainingPercent = (((initialKwt + chargerState.sessionEnergy) / ValueStore.totalCapacityKwH) * 100).toInt()
+        }
+        LOGGER.warn("Couldn't calculate remaining batteryPercent since we couldn't retrieve this charge session energy usage from Easee.")
     }
 
     fun startCharging(): Int {
