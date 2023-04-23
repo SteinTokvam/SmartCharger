@@ -27,7 +27,6 @@ class GetChargingTimesJob: Job {
         val jobGroup = "chargingGroup"
 
         val scheduler = dataMap["scheduler"]
-        LOGGER.info("kommer inn i charging time job")
 
         if(scheduler is Scheduler) {
             if (!ValueStore.smartChargingEnabled) {
