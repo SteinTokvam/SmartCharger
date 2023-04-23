@@ -67,6 +67,7 @@ class PowerApiService {
             return prices
         } catch (e: Exception) {
             LOGGER.warn("Couldn't get the lowest $hours prices for zone ${ValueStore.zone} for time $from-$to")
+            LOGGER.error(e.stackTraceToString())
         } finally {
             response?.close()
         }

@@ -58,7 +58,7 @@ class QuartzSchedueler {
     private fun createGetChargingTimesJobDetail(schedueler: Scheduler): JobDetail {
         return JobBuilder.newJob(GetChargingTimesJob::class.java)
             .withIdentity("createGetChargingTimesJob", "createGetChargingTimesGroup")
-            .setJobData(JobDataMap(mutableMapOf(Pair("schedueler", schedueler))))
+            .setJobData(JobDataMap(mutableMapOf(Pair("scheduler", schedueler))))
             .build()
     }
 }

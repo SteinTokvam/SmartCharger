@@ -2,7 +2,6 @@ package no.steintokvam.smartcharger
 
 import no.steintokvam.smartcharger.api.power.PowerApiService
 import no.steintokvam.smartcharger.easee.EaseeService
-import no.steintokvam.smartcharger.electricity.ElectricityPrice
 import no.steintokvam.smartcharger.infra.ValueStore
 import no.steintokvam.smartcharger.objects.ChargingTimes
 import org.slf4j.Logger
@@ -77,6 +76,7 @@ class SmartCharger {
         val chargerState = easeeService.getChargerState()
         if(chargerState != null) {
             ValueStore.remainingPercent = (((initialKwt + chargerState.sessionEnergy) / ValueStore.totalCapacityKwH) * 100).toInt()
+            return
         }
         LOGGER.warn("Couldn't calculate remaining batteryPercent since we couldn't retrieve this charge session energy usage from Easee.")
     }
@@ -84,6 +84,7 @@ class SmartCharger {
     fun resetSmartcharging(now: LocalDateTime) {
         ValueStore.isSmartCharging = false
         ValueStore.smartChargingSchedueled = false
+        ValueStore.lastReestimate = LocalDateTime.now().minusDays(1L)
         startCharging()
         if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
             && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
