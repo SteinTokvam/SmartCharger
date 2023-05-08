@@ -11,4 +11,4 @@ Strømpriser blir hentet ut slik at man har dagens priser, og når de kommer mor
 
 #### Hvordan innstallere?
 
-Docker image finnes på [DockerHub](https://hub.docker.com/repository/docker/steintokvam/smartcharger/general). 
+Docker image finnes på [DockerHub](https://hub.docker.com/r/steintokvam/smartcharger). 
