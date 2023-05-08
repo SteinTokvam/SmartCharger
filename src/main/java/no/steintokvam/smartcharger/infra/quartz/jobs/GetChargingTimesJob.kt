@@ -141,6 +141,7 @@ class GetChargingTimesJob: Job {
             .build()
         schedueler.scheduleJob(jobDetail, trigger)
         return trigger
+        
     }
 
     private fun logChargingtimes() {
