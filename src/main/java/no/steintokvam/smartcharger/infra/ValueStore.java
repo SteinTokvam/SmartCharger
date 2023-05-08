@@ -34,4 +34,7 @@ public class ValueStore {
     public static String chargerID = "EHE6ZQU7";
 
     public static String powerPriceURL = "";
+
+    public static List<String> startJobNames = emptyList();
+    public static List<String> pauseJobNames = emptyList();
 }
