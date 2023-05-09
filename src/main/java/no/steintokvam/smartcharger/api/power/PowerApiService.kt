@@ -5,17 +5,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import no.steintokvam.smartcharger.easee.objects.ChargerState
 import no.steintokvam.smartcharger.electricity.ElectricityPrice
 import no.steintokvam.smartcharger.infra.ValueStore
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.slf4j.LoggerFactory
-import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -36,9 +31,14 @@ class PowerApiService {
         .registerModule(javaTimeModule)
 
     fun getAllPrices():List<ElectricityPrice> {
+        val request = createGetRequest("/prices/all")
+        return doRequest(request)
+    }
+
+    private fun doRequest(request: Request): List<ElectricityPrice> {
         var response: Response? = null
+
         try {
-            val request = createGetRequest("/prices/all")
             response = client.newCall(request).execute()
             val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, ElectricityPrice::class.java)
             val prices =
@@ -47,7 +47,8 @@ class PowerApiService {
             response.close()
             return prices
         } catch (e: Exception) {
-            LOGGER.warn("Couldn't get any electricity prices for ${LocalDateTime.now()} in zone ${ValueStore.zone}")
+            LOGGER.warn("Couldn't call ${request.url} for zone ${ValueStore.zone}")
+            LOGGER.error(e.stackTraceToString())
         } finally {
             response?.close()
         }
@@ -55,23 +56,8 @@ class PowerApiService {
     }
 
     fun getPricesFor(from: LocalDateTime, hours: Int, to: LocalDateTime):List<ElectricityPrice> {
-        var response: Response? = null
-        try {
-            val request = createGetRequest("/prices/cheapest/$from/$hours/$to")
-            response = client.newCall(request).execute()
-            val collectionType = mapper.typeFactory.constructCollectionType(List::class.java, ElectricityPrice::class.java)
-            val prices =
-                mapper.readValue<List<ElectricityPrice>>(response.body?.charStream()?.readText(), collectionType)
-                    .onEach { it.NOK_per_kWh = it.NOK_per_kWh.format(2) }.toMutableList()
-            response.close()
-            return prices
-        } catch (e: Exception) {
-            LOGGER.warn("Couldn't get the lowest $hours prices for zone ${ValueStore.zone} for time $from-$to")
-            LOGGER.error(e.stackTraceToString())
-        } finally {
-            response?.close()
-        }
-        return emptyList()
+        val request = createGetRequest("/prices/cheapest/$from/$hours/$to")
+        return doRequest(request)
     }
 
     private fun Float.format(scale: Int) = "%.${scale}f".format(Locale.US, this).toFloat()

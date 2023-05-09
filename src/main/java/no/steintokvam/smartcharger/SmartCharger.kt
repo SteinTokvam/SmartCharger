@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
 class SmartCharger {
@@ -62,11 +61,7 @@ class SmartCharger {
         return ChargingTimes(lowestPrices.sortedBy { it.time_start }, kwhLeftToCharge, estimatedChargeTime, finishChargingBy)
     }
 
-    fun getHoursBetween(first: LocalDateTime, second: LocalDateTime): Int {//TODO: burde være i en util klasse
-        return ChronoUnit.HOURS.between(first, second).toInt()
-    }
-
-    fun calculateBatteryLevel(remainingPercent: Int, totalCapacityKwH: Int): Int {
+    private fun calculateBatteryLevel(remainingPercent: Int, totalCapacityKwH: Int): Int {
         return (totalCapacityKwH * (remainingPercent / 100f)).roundToInt()
     }
 

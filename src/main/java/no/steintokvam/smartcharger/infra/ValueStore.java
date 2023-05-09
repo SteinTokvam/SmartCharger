@@ -1,7 +1,6 @@
 package no.steintokvam.smartcharger.infra;
 
 import no.steintokvam.smartcharger.easee.objects.AccessToken;
-import no.steintokvam.smartcharger.electricity.ElectricityPrice;
 import no.steintokvam.smartcharger.objects.ChargingTimes;
 
 import java.time.LocalDate;

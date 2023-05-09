@@ -5,7 +5,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import no.steintokvam.smartcharger.easee.objects.*
+import no.steintokvam.smartcharger.easee.objects.AccessToken
+import no.steintokvam.smartcharger.easee.objects.Authentication
+import no.steintokvam.smartcharger.easee.objects.ChargerState
+import no.steintokvam.smartcharger.easee.objects.RefreshToken
 import no.steintokvam.smartcharger.infra.ValueStore
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -16,7 +19,6 @@ import okhttp3.Response
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlin.Exception
 
 class EaseeService {
 

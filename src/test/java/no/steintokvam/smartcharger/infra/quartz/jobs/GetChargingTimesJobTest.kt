@@ -1,12 +1,7 @@
 package no.steintokvam.smartcharger.infra.quartz.jobs
 
 
-import no.steintokvam.smartcharger.infra.ValueStore
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 
 class GetChargingTimesJobTest() {
     @Test

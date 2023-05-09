@@ -9,6 +9,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 
@@ -50,7 +51,7 @@ class GetChargingTimesJob: Job {
             }
             smartCharger.updateFinnishByTime(now)
             smartCharger.updateCurrentChargingSpeed()
-            if (smartCharger.isChargingFastEnough() && smartCharger.getHoursBetween(
+            if (smartCharger.isChargingFastEnough() && getHoursBetween(
                     ValueStore.lastReestimate,
                     now
                 ) > 1
@@ -68,7 +69,7 @@ class GetChargingTimesJob: Job {
     }
 
     private fun getChargingTimes() {
-        val tmpChargingTimes = smartCharger.getChargingTimes(//TODO: denne tryner om den ikke klarer å finne noen priser
+        val tmpChargingTimes = smartCharger.getChargingTimes(
             ValueStore.remainingPercent,
             ValueStore.totalCapacityKwH,
             ValueStore.finnishChargingBy
@@ -117,17 +118,17 @@ class GetChargingTimesJob: Job {
 
     private fun createQuartzChargingJob(schedueler: Scheduler, jobName: String, jobGroup: String, index: Int, isStart: Boolean) {
         if(isStart) {
-            val trigger = createTriggerAndDetail(schedueler, jobName, jobGroup, index, StartChargingJob::class.java)
+            val trigger = createTriggerAndJobDetail(schedueler, jobName, jobGroup, index, StartChargingJob::class.java)
             LOGGER.info("Smartcharging scheduled to start at ${trigger.nextFireTime}")
             ValueStore.startJobNames.add(jobName)
         } else {
-            val trigger = createTriggerAndDetail(schedueler, jobName, jobGroup, index, PauseChargingJob::class.java)
+            val trigger = createTriggerAndJobDetail(schedueler, jobName, jobGroup, index, PauseChargingJob::class.java)
             LOGGER.info("Smartcharging scheduled to pause at ${trigger.nextFireTime}")
             ValueStore.pauseJobNames.add(jobName)
         }
     }
 
-    private fun createTriggerAndDetail(schedueler: Scheduler, jobName: String, jobGroup: String, index: Int, jobClass: Class<out Job>): Trigger {
+    private fun createTriggerAndJobDetail(schedueler: Scheduler, jobName: String, jobGroup: String, index: Int, jobClass: Class<out Job>): Trigger {
         val trigger = TriggerBuilder.newTrigger()
             .withIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString())
             .startAt(
@@ -141,6 +142,10 @@ class GetChargingTimesJob: Job {
             .build()
         schedueler.scheduleJob(jobDetail, trigger)
         return trigger
+    }
+
+    private fun getHoursBetween(from: LocalDateTime, to: LocalDateTime): Int {
+        return ChronoUnit.HOURS.between(from, to).toInt()
     }
 
     private fun logChargingtimes() {
