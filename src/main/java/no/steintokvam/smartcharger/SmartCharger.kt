@@ -88,17 +88,14 @@ class SmartCharger {
     }
 
     fun updateFinnishByTime(now: LocalDateTime) {
-        if(ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth
+        if((ValueStore.finnishChargingBy.dayOfMonth == now.dayOfMonth || ValueStore.finnishChargingBy.dayOfMonth < now.dayOfMonth)
             && ValueStore.finnishChargingBy.toLocalTime().isBefore(now.toLocalTime())) {
             ValueStore.finnishChargingBy = LocalDateTime.of(
                 LocalDate.now().plusDays(1L),
                 LocalTime.of(ValueStore.finnishChargingBy.hour, ValueStore.finnishChargingBy.minute)
             )
             LOGGER.info("Updated finnishChargingBy to ${ValueStore.finnishChargingBy}.")
-        } else if(ValueStore.finnishChargingBy.dayOfMonth != now.dayOfMonth) {
-            ValueStore.finnishChargingBy= LocalDateTime.of(LocalDate.now().plusDays(1L), LocalTime.of(7, 0))
-            LOGGER.info("Updated finnishCharging by to ${ValueStore.finnishChargingBy}. Finnish charging by hasn't been updated in over 24 hours.")
-        }
+        } 
     }
 
     fun startCharging(): Int {
