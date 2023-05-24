@@ -43,8 +43,8 @@ class GetChargingTimesJob: Job {
                         scheduler.deleteJob(JobKey(jobName, jobGroup))
                         LOGGER.info("Deleted scheduled pausing jobs.")
                     }
-                    ValueStore.startJobNames = emptyList()
-                    ValueStore.pauseJobNames = emptyList()
+                    ValueStore.startJobNames = mutableListOf<String>()
+                    ValueStore.pauseJobNames = mutableListOf<String>()
                     LOGGER.info("Currently scheduled jobs are: ${scheduler.jobGroupNames}")
                 }
                 return
