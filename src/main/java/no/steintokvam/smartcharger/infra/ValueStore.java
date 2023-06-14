@@ -6,6 +6,7 @@ import no.steintokvam.smartcharger.objects.ChargingTimes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -34,6 +35,6 @@ public class ValueStore {
 
     public static String powerPriceURL = "";
 
-    public static List<String> startJobNames = emptyList();
-    public static List<String> pauseJobNames = emptyList();
+    public static List<String> startJobNames = new ArrayList<>();
+    public static List<String> pauseJobNames = new ArrayList<>();
 }
